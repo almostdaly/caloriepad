@@ -4,17 +4,23 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useApp } from "@/contexts/AppContext";
 import { FoodEntry, FoodItem } from "@/types";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Alert, SafeAreaView, StyleSheet } from "react-native";
 
 export default function AddScreen() {
   const { addFoodEntry } = useApp();
+  const router = useRouter();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleFoodAdded = () => {
     // Food was successfully added via quick add
     // Trigger refresh of recent foods
     setRefreshTrigger((prev) => prev + 1);
+  };
+
+  const navigateToHome = () => {
+    router.push("/(tabs)");
   };
 
   const handleSelectRecentFood = async (food: FoodItem) => {
@@ -76,6 +82,7 @@ export default function AddScreen() {
         <QuickAddFood
           onFoodAdded={handleFoodAdded}
           addFoodEntry={addFoodEntry}
+          onNavigateToHome={navigateToHome}
         />
 
         <RecentFoodsQuickAdd

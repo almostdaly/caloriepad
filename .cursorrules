@@ -9,6 +9,15 @@
 - We use EAS to build development versions
 - Use expo modules where appropriate
 
+## Component Architecture (CRITICAL)
+
+- **Single Responsibility Principle**: Each component should do ONE thing well
+- **Pure, Prop-Driven Components**: Components should be predictable and testable
+- **Break Down Large Components**: If a component exceeds ~150 lines, split it
+- **Discrete Functionality**: Create focused components (e.g., SearchInput, SuggestionsList, ControlPanel)
+- **Composition Over Inheritance**: Build complex UIs by combining simple components
+- **Clear Component Hierarchy**: Create logical folder structure with index exports
+
 ## Component Guidelines
 
 - Use `View` instead of `div`
@@ -17,6 +26,26 @@
 - Use `Pressable` or `TouchableOpacity` for interactive elements (not `button`)
 - Follow React Native's layout system (flexbox-like) with style props
 - Use `@/components/themed` for ThemedText and ThemedView primitives, not react native built ins.
+
+## File Structure & Organization
+
+- Components in `/components` directory with logical subfolders
+- Create component folders when multiple related files exist
+- Use index.ts exports for clean imports
+- Styles should be colocated with components
+- Use .tsx extension for TypeScript React Native files
+- Example structure:
+  ```
+  components/
+    food/
+      SearchInput/
+        index.tsx
+        SearchInput.tsx
+        SearchInput.styles.ts
+      SuggestionsList/
+        index.tsx
+        SuggestionsList.tsx
+  ```
 
 ## Styling Rules
 
@@ -33,15 +62,10 @@
 - Always use the alias imports and not relative path (e.g. `@/components`, `@/hooks`)
 - Do not use `any`
 
-## File Structure
-
-- Components in `/components` directory
-- Screens in `/screens` directory
-- Styles should be colocated with components
-- Use .tsx extension for TypeScript React Native files
-
 ## Project Guidelines
 
 - I want to use everything native/built in as possible
 - The app should be super native feeling and pure
-- It should be clean and minmal UI so dont over engineer solutions
+- It should be clean and minimal UI so don't over engineer solutions
+- **Always prioritize component composition and reusability**
+- **Refactor immediately when components become unwieldy**

@@ -6,6 +6,55 @@ A minimalistic food intake tracking app that integrates with Apple Health data t
 
 ## ⚠️ CRITICAL DEVELOPMENT GUIDELINES
 
+### Component Architecture Rules (MUST FOLLOW)
+
+**🚨 RECURRING ISSUE**: Components grow too large and violate single responsibility principle.
+
+**MANDATORY COMPONENT PATTERNS:**
+
+```typescript
+// ✅ CORRECT: Single responsibility, prop-driven components
+interface SearchInputProps {
+  value: string;
+  onChangeText: (text: string) => void;
+  onClear: () => void;
+}
+
+export function SearchInput({
+  value,
+  onChangeText,
+  onClear,
+}: SearchInputProps) {
+  // Does ONE thing: handles search input with clear functionality
+}
+
+// ✅ CORRECT: Compose complex functionality
+function QuickAddFood() {
+  return (
+    <View>
+      <SearchInput />
+      <SuggestionsList />
+      <CalorieControls />
+      <TotalDisplay />
+    </View>
+  );
+}
+
+// ❌ WRONG: Monolithic component doing everything
+function QuickAddFood() {
+  // 500+ lines handling search, suggestions, controls, animation, etc.
+}
+```
+
+**REQUIRED COMPONENT BREAKDOWN RULES:**
+
+1. ✅ Component > 150 lines = immediate refactor required
+2. ✅ One component = one responsibility (search, display, control, etc.)
+3. ✅ Props-driven, no internal state when possible
+4. ✅ Create component folders with index.ts exports
+5. ✅ Use composition pattern for complex UIs
+6. ✅ Extract reusable logic into custom hooks
+
 ### Dark Mode Styling Rules (MUST FOLLOW)
 
 **🚨 RECURRING ISSUE**: Components keep having dark mode styling problems.

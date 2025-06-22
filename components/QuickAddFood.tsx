@@ -2,9 +2,12 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { FoodService } from "@/services/foodService";
 import { FoodEntry, FoodItem } from "@/types";
+import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
+  Animated,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -17,9 +20,14 @@ import { IconSymbol } from "./ui/IconSymbol";
 interface QuickAddFoodProps {
   onFoodAdded: () => void;
   addFoodEntry: (entry: FoodEntry) => Promise<void>;
+  onNavigateToHome?: () => void; // For navigation after success
 }
 
-export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
+export function QuickAddFood({
+  onFoodAdded,
+  addFoodEntry,
+  onNavigateToHome,
+}: QuickAddFoodProps) {
   const colorScheme = useColorScheme();
   const [foodName, setFoodName] = useState("");
   const [calories, setCalories] = useState(100);
@@ -27,7 +35,12 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
   const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isAcceptedSuggestion, setIsAcceptedSuggestion] = useState(false);
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Animation values
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const checkScale = useRef(new Animated.Value(0)).current;
 
   // Simple debounce function
   const debounceSearch = useCallback(
@@ -97,6 +110,13 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
     setSearchResults([]);
   };
 
+  const selectCustomFood = () => {
+    // Keep the current food name but mark as accepted to stop searching
+    setIsAcceptedSuggestion(true);
+    setShowSuggestions(false);
+    setSearchResults([]);
+  };
+
   const adjustCalories = (amount: number) => {
     const newCalories = Math.max(0, calories + amount);
     setCalories(newCalories);
@@ -105,6 +125,47 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
   const adjustQuantity = (amount: number) => {
     const newQuantity = Math.max(1, quantity + amount);
     setQuantity(newQuantity);
+  };
+
+  const playSuccessAnimation = () => {
+    setShowSuccessOverlay(true);
+
+    // Haptic feedback
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // Animate overlay fade in
+    Animated.timing(overlayOpacity, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+
+    // Animate checkmark scale in with spring
+    Animated.spring(checkScale, {
+      toValue: 1,
+      tension: 100,
+      friction: 6,
+      useNativeDriver: true,
+    }).start();
+
+    // Auto dismiss and navigate after 1.2 seconds
+    setTimeout(() => {
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowSuccessOverlay(false);
+        // Reset animation values for next time
+        overlayOpacity.setValue(0);
+        checkScale.setValue(0);
+
+        // Navigate to home
+        if (onNavigateToHome) {
+          onNavigateToHome();
+        }
+      });
+    }, 1200);
   };
 
   const handleQuickAdd = async () => {
@@ -175,11 +236,7 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
 
       onFoodAdded();
 
-      Alert.alert(
-        "Added!",
-        `${foodToSave.name} (${quantity}x ${calories} cal = ${totalCalories} cal) has been added to your daily log.`,
-        [{ text: "OK" }]
-      );
+      playSuccessAnimation();
     } catch (error) {
       console.error("Error adding quick food:", error);
       Alert.alert("Error", "Failed to add food entry. Please try again.");
@@ -297,6 +354,41 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
                     </ThemedView>
                   </Pressable>
                 ))}
+
+                {/* Custom "Use search text" option */}
+                {searchResults.length > 0 && (
+                  <Pressable
+                    style={[
+                      styles.suggestion,
+                      styles.customSuggestion,
+                      {
+                        borderBottomColor: colors.separator,
+                        backgroundColor: colors.backgroundSecondary + "40",
+                      },
+                    ]}
+                    onPress={() => selectCustomFood()}
+                  >
+                    <ThemedView
+                      style={[
+                        styles.suggestionContent,
+                        { backgroundColor: "transparent" },
+                      ]}
+                    >
+                      <ThemedText
+                        type="default"
+                        style={[styles.suggestionName, { fontStyle: "italic" }]}
+                        numberOfLines={1}
+                      >
+                        Use &quot;{foodName}&quot;
+                      </ThemedText>
+                      <IconSymbol
+                        name="plus.circle"
+                        size={16}
+                        color={colors.tint}
+                      />
+                    </ThemedView>
+                  </Pressable>
+                )}
               </ScrollView>
             </ThemedView>
           )}
@@ -469,6 +561,35 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
           </ThemedText>
         </Pressable>
       </ThemedView>
+
+      {/* Success Animation Modal - True Fullscreen */}
+      <Modal
+        visible={showSuccessOverlay}
+        transparent={true}
+        animationType="none"
+        statusBarTranslucent={true}
+      >
+        <Animated.View
+          style={[
+            {
+              flex: 1,
+              backgroundColor: "rgba(0, 0, 0, 0.85)",
+              justifyContent: "center",
+              alignItems: "center",
+              opacity: overlayOpacity,
+            },
+          ]}
+        >
+          <Animated.View
+            style={[
+              styles.successCheckContainer,
+              { transform: [{ scale: checkScale }] },
+            ]}
+          >
+            <IconSymbol name="checkmark" size={50} color="white" />
+          </Animated.View>
+        </Animated.View>
+      </Modal>
     </ThemedView>
   );
 }
@@ -621,5 +742,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+  },
+  customSuggestion: {
+    // Styling applied inline with colors
+  },
+  successCheckContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#34C759", // iOS green
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
 });
