@@ -35,8 +35,10 @@ export default function TodayScreen() {
     console.log("View all entries");
   };
 
-  // Calculate net calories (consumed - burned)
+  // Calculate net calories (consumed - burned) and determine if it's within goal
   const netCalories = todayCaloriesConsumed - (todayCaloriesBurned || 0);
+  const isNetWithinGoal = netCalories <= settings.dailyCalorieGoal;
+  const isBurnedGood = (todayCaloriesBurned || 0) > 200; // Good if burned more than 200 calories
 
   return (
     <ThemedView style={styles.container}>
@@ -68,16 +70,20 @@ export default function TodayScreen() {
             title="Burned"
             value={todayCaloriesBurned || 0}
             iconName="flame"
-            color={Colors[colorScheme ?? "light"].healthRed}
+            color={
+              isBurnedGood
+                ? Colors[colorScheme ?? "light"].healthGreen
+                : Colors[colorScheme ?? "light"].healthRed
+            }
           />
           <CalorieStatCard
             title="Net"
             value={netCalories}
             iconName={netCalories >= 0 ? "plus.circle" : "minus.circle"}
             color={
-              netCalories >= 0
+              isNetWithinGoal
                 ? Colors[colorScheme ?? "light"].healthGreen
-                : Colors[colorScheme ?? "light"].healthBlue
+                : Colors[colorScheme ?? "light"].healthRed
             }
           />
         </ThemedView>

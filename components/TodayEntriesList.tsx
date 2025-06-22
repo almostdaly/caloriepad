@@ -28,12 +28,6 @@ export function TodayEntriesList({
           style={[styles.sectionHeader, { backgroundColor: "transparent" }]}
         >
           <ThemedText type="subtitle">Today&apos;s Entries</ThemedText>
-          <ThemedText
-            type="default"
-            style={[styles.entriesCount, { color: colors.textSecondary }]}
-          >
-            0 entries
-          </ThemedText>
         </ThemedView>
 
         <ThemedView
@@ -65,12 +59,20 @@ export function TodayEntriesList({
         style={[styles.sectionHeader, { backgroundColor: "transparent" }]}
       >
         <ThemedText type="subtitle">Today&apos;s Entries</ThemedText>
-        <ThemedText
-          type="default"
-          style={[styles.entriesCount, { color: colors.textSecondary }]}
-        >
-          {entries.length} {entries.length === 1 ? "entry" : "entries"}
-        </ThemedText>
+        {entries.length > 0 && onViewAll && (
+          <Pressable
+            style={[styles.viewAllButton, { backgroundColor: "transparent" }]}
+            onPress={onViewAll}
+          >
+            <ThemedText
+              type="default"
+              style={[styles.viewAllText, { color: colors.textSecondary }]}
+            >
+              View all ({entries.length})
+            </ThemedText>
+            <IconSymbol name="chevron.right" size={16} color={colors.icon} />
+          </Pressable>
+        )}
       </ThemedView>
 
       <ThemedView style={{ backgroundColor: "transparent" }}>
@@ -93,7 +95,7 @@ export function TodayEntriesList({
               </ThemedText>
               <ThemedText
                 type="default"
-                style={[styles.entryCalories, { color: colors.healthOrange }]}
+                style={[styles.entryCalories, { color: colors.text }]}
               >
                 {entry.totalCalories} cal
               </ThemedText>
@@ -105,8 +107,7 @@ export function TodayEntriesList({
                 type="default"
                 style={[styles.entryMeta, { color: colors.textSecondary }]}
               >
-                {entry.quantity}x {entry.foodItem.servingSize} •{" "}
-                {entry.foodItem.category}
+                {entry.foodItem.servingSize}
               </ThemedText>
               <ThemedText
                 type="default"
@@ -121,21 +122,6 @@ export function TodayEntriesList({
             </ThemedView>
           </ThemedView>
         ))}
-
-        {entries.length > 5 && onViewAll && (
-          <Pressable
-            style={[styles.viewAllButton, { backgroundColor: "transparent" }]}
-            onPress={onViewAll}
-          >
-            <ThemedText
-              type="default"
-              style={[styles.viewAllText, { color: colors.textSecondary }]}
-            >
-              View all {entries.length} entries
-            </ThemedText>
-            <IconSymbol name="chevron.right" size={16} color={colors.icon} />
-          </Pressable>
-        )}
       </ThemedView>
     </ThemedView>
   );
@@ -170,7 +156,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   entryItem: {
-    padding: 16,
+    padding: 12,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 0.5,
