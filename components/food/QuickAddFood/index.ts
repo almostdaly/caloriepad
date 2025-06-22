@@ -1,0 +1,1 @@
+export { QuickAddFood } from "./QuickAddFood";

@@ -1,19 +1,19 @@
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { ThemedText } from "@/components/ui/ThemedText";
+import { ThemedView } from "@/components/ui/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { StorageService } from "@/services/storage";
 import { FoodEntry, FoodItem } from "@/types";
 import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet } from "react-native";
-import { ThemedText } from "./ThemedText";
-import { ThemedView } from "./ThemedView";
-import { IconSymbol } from "./ui/IconSymbol";
 
 interface RecentFoodsQuickAddProps {
   onSelectFood: (food: FoodItem) => void;
   refreshTrigger?: number;
 }
 
-export function RecentFoodsQuickAdd({
+export function RecentQuickAdd({
   onSelectFood,
   refreshTrigger,
 }: RecentFoodsQuickAddProps) {

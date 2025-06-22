@@ -1,8 +1,8 @@
-import { CalorieStatCard } from "@/components/CalorieStatCard";
-import { GoalProgressCard } from "@/components/GoalProgressCard";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { TodayEntriesList } from "@/components/TodayEntriesList";
+import { EntriesList } from "@/components/today/EntriesList";
+import { ProgressCard } from "@/components/today/ProgressCard";
+import { StatCard } from "@/components/today/StatCard";
+import { ThemedText } from "@/components/ui/ThemedText";
+import { ThemedView } from "@/components/ui/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { useApp } from "@/contexts/AppContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -60,13 +60,13 @@ export default function TodayScreen() {
 
         {/* Calorie Summary Cards */}
         <ThemedView style={styles.summarySection}>
-          <CalorieStatCard
+          <StatCard
             title="Consumed"
             value={todayCaloriesConsumed}
             iconName="fork.knife"
             color={Colors[colorScheme ?? "light"].healthOrange}
           />
-          <CalorieStatCard
+          <StatCard
             title="Burned"
             value={todayCaloriesBurned || 0}
             iconName="flame"
@@ -76,7 +76,7 @@ export default function TodayScreen() {
                 : Colors[colorScheme ?? "light"].healthRed
             }
           />
-          <CalorieStatCard
+          <StatCard
             title="Net"
             value={netCalories}
             iconName={netCalories >= 0 ? "plus.circle" : "minus.circle"}
@@ -89,16 +89,13 @@ export default function TodayScreen() {
         </ThemedView>
 
         {/* Goal Progress */}
-        <GoalProgressCard
+        <ProgressCard
           caloriesConsumed={todayCaloriesConsumed}
           dailyGoal={settings.dailyCalorieGoal}
         />
 
         {/* Today's Entries */}
-        <TodayEntriesList
-          entries={todayEntries}
-          onViewAll={handleViewAllEntries}
-        />
+        <EntriesList entries={todayEntries} onViewAll={handleViewAllEntries} />
       </ScrollView>
     </ThemedView>
   );

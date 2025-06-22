@@ -1,7 +1,7 @@
-import { QuickAddFood } from "@/components/QuickAddFood";
-import { RecentFoodsQuickAdd } from "@/components/RecentFoodsQuickAdd";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { QuickAddFood } from "@/components/food/QuickAddFood";
+import { RecentQuickAdd } from "@/components/food/RecentQuickAdd";
+import { ThemedText } from "@/components/ui/ThemedText";
+import { ThemedView } from "@/components/ui/ThemedView";
 import { useApp } from "@/contexts/AppContext";
 import { FoodEntry, FoodItem } from "@/types";
 import { useRouter } from "expo-router";
@@ -85,7 +85,7 @@ export default function AddScreen() {
           onNavigateToHome={navigateToHome}
         />
 
-        <RecentFoodsQuickAdd
+        <RecentQuickAdd
           onSelectFood={handleSelectRecentFood}
           refreshTrigger={refreshTrigger}
         />

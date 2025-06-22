@@ -18,6 +18,47 @@
 - **Composition Over Inheritance**: Build complex UIs by combining simple components
 - **Clear Component Hierarchy**: Create logical folder structure with index exports
 
+## CODE STRUCTURE RULES (MANDATORY)
+
+### Single Component Per File
+
+- **ONE component export per file** - no exceptions
+- Each component gets its own file named exactly as the component
+- Use default exports for main components, named exports for utilities only
+- If you need multiple related components, create separate files in a folder
+
+### Component Organization
+
+- Group components by **screen/feature area** (e.g., `food/`, `today/`, `settings/`)
+- **Common/shared components** go in `common/` folder
+- **Complex components** get their own folder with:
+  ```
+  ComponentName/
+    ├── index.ts          # Re-export
+    ├── ComponentName.tsx # Main component
+    └── types.ts         # Component-specific types (if needed)
+  ```
+
+### Styles and Theming
+
+- **Styles MUST live inside the component file** - no separate .styles.ts files
+- Always use the colors pattern: `const colors = Colors[colorScheme ?? 'light']`
+- All nested ThemedViews must use `backgroundColor: 'transparent'`
+- Use semantic color names (colors.text, colors.textSecondary) never hardcoded values
+
+### Component Size Limits
+
+- **Maximum 150 lines per component** - must split if exceeded
+- **Maximum 5 props** - refactor to config object or split component if more needed
+- **Maximum 3 useState hooks** - extract to custom hook or split component if more
+
+### Services and Utilities
+
+- **Break up large services** - max 200 lines per service file
+- **Extract common utilities** into `utils/` folder
+- **No business logic in components** - delegate to services/hooks
+- **Async operations** should be in services, not components
+
 ## Component Guidelines
 
 - Use `View` instead of `div`
@@ -37,14 +78,15 @@
 - Example structure:
   ```
   components/
-    food/
+    common/           # Shared across multiple screens
+      Button/
+      Input/
+    food/            # Food-related components
       SearchInput/
-        index.tsx
-        SearchInput.tsx
-        SearchInput.styles.ts
       SuggestionsList/
-        index.tsx
-        SuggestionsList.tsx
+    today/           # Today screen components
+      StatCard/
+      EntriesList/
   ```
 
 ## Styling Rules
@@ -69,3 +111,13 @@
 - It should be clean and minimal UI so don't over engineer solutions
 - **Always prioritize component composition and reusability**
 - **Refactor immediately when components become unwieldy**
+
+## REFACTORING RULES (IMMEDIATE ACTION REQUIRED)
+
+When you encounter violations:
+
+1. **Large components (>150 lines)**: Split immediately into focused sub-components
+2. **Multiple exports**: Create separate files for each component
+3. **Mixed responsibilities**: Extract business logic to services/hooks
+4. **Inline styles**: Move to StyleSheet.create() within the same file
+5. **Common utilities**: Extract to shared utils/ folder

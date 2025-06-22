@@ -1,6 +1,5 @@
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { ThemedText } from "@/components/ui/ThemedText";
+import { ThemedView } from "@/components/ui/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { FoodItem } from "@/types";
@@ -9,25 +8,21 @@ import { Pressable, ScrollView, StyleSheet } from "react-native";
 
 interface SuggestionsListProps {
   suggestions: FoodItem[];
-  searchQuery: string;
   onSelectSuggestion: (food: FoodItem) => void;
   onSelectCustom: () => void;
-  onBlur?: () => void;
+  visible: boolean;
 }
 
 export function SuggestionsList({
   suggestions,
-  searchQuery,
   onSelectSuggestion,
   onSelectCustom,
-  onBlur,
+  visible,
 }: SuggestionsListProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
-  if (suggestions.length === 0) {
-    return null;
-  }
+  if (!visible) return null;
 
   return (
     <ThemedView
@@ -36,19 +31,23 @@ export function SuggestionsList({
         {
           backgroundColor: colors.cardBackground,
           borderColor: colors.separator,
-          shadowColor: colors.text,
-          shadowOpacity: 0.1,
-          shadowOffset: { width: 0, height: 2 },
-          shadowRadius: 8,
-          elevation: 4,
         },
       ]}
     >
-      <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
-        {suggestions.map((food) => (
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        {suggestions.map((food, index) => (
           <Pressable
             key={food.id}
-            style={[styles.suggestion, { borderBottomColor: colors.separator }]}
+            style={[
+              styles.suggestion,
+              {
+                borderBottomColor: colors.separator,
+                borderBottomWidth: index < suggestions.length - 1 ? 0.5 : 0,
+              },
+            ]}
             onPress={() => onSelectSuggestion(food)}
           >
             <ThemedView
@@ -58,30 +57,30 @@ export function SuggestionsList({
               ]}
             >
               <ThemedText
-                type="default"
-                style={styles.suggestionName}
+                style={[styles.suggestionName, { color: colors.text }]}
                 numberOfLines={2}
               >
                 {food.name}
               </ThemedText>
               <ThemedText
-                type="default"
-                style={[styles.suggestionCalories, { color: colors.tint }]}
+                style={[
+                  styles.suggestionCalories,
+                  { color: colors.healthOrange },
+                ]}
               >
-                {food.caloriesPerServing} cal
+                {food.caloriesPerServing}
               </ThemedText>
             </ThemedView>
           </Pressable>
         ))}
 
-        {/* Custom "Use search text" option */}
+        {/* Custom food option */}
         <Pressable
           style={[
             styles.suggestion,
             styles.customSuggestion,
             {
-              borderBottomColor: colors.separator,
-              backgroundColor: colors.backgroundSecondary + "40",
+              backgroundColor: colors.backgroundSecondary,
             },
           ]}
           onPress={onSelectCustom}
@@ -92,14 +91,9 @@ export function SuggestionsList({
               { backgroundColor: "transparent" },
             ]}
           >
-            <ThemedText
-              type="default"
-              style={[styles.suggestionName, { fontStyle: "italic" }]}
-              numberOfLines={1}
-            >
-              Use &quot;{searchQuery}&quot;
+            <ThemedText style={[styles.suggestionName, { color: colors.tint }]}>
+              Use custom food
             </ThemedText>
-            <IconSymbol name="plus.circle" size={16} color={colors.tint} />
           </ThemedView>
         </Pressable>
       </ScrollView>
@@ -129,7 +123,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingHorizontal: 12,
     paddingVertical: 12,
-    borderBottomWidth: 0.5,
     minHeight: 50,
   },
   suggestionContent: {
@@ -152,6 +145,6 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   customSuggestion: {
-    // Styling applied inline with colors
+    borderTopWidth: 0.5,
   },
 });

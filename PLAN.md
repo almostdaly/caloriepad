@@ -55,6 +55,35 @@ function QuickAddFood() {
 5. ✅ Use composition pattern for complex UIs
 6. ✅ Extract reusable logic into custom hooks
 
+### CODE ARCHITECTURE STANDARDS (NEW - MANDATORY)
+
+**🚨 ENFORCED**: Single component per file, maximum 150 lines per component
+
+**COMPONENT ORGANIZATION STRUCTURE:**
+
+```
+components/
+├── common/              # Shared components (Button, Input, etc.)
+├── food/               # Food feature components
+├── today/              # Today screen components
+├── settings/           # Settings screen components
+└── [screen]/           # Other screen-specific components
+```
+
+**FILE NAMING STANDARDS:**
+
+- One component per file, named exactly as the component
+- Folder structure: `ComponentName/index.ts` + `ComponentName.tsx`
+- Services split by domain: `foodService.ts`, `healthService.ts`, etc.
+- Utilities extracted to: `utils/formatters.ts`, `utils/validators.ts`
+
+**SIZE LIMITS (ENFORCED):**
+
+- Components: 150 lines maximum
+- Services: 200 lines maximum
+- Props: 5 maximum (use config objects beyond this)
+- useState hooks: 3 maximum per component
+
 ### Dark Mode Styling Rules (MUST FOLLOW)
 
 **🚨 RECURRING ISSUE**: Components keep having dark mode styling problems.

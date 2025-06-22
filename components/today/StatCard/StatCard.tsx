@@ -1,43 +1,48 @@
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { ThemedText } from "@/components/ui/ThemedText";
+import { ThemedView } from "@/components/ui/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { ThemedText } from "./ThemedText";
-import { ThemedView } from "./ThemedView";
-import { IconSymbol } from "./ui/IconSymbol";
 
-interface CalorieStatCardProps {
+interface StatCardProps {
   title: string;
   value: number;
   iconName: any; // SF Symbol name
   color: string;
 }
 
-export function CalorieStatCard({
-  title,
-  value,
-  iconName,
-  color,
-}: CalorieStatCardProps) {
+export function StatCard({ title, value, iconName, color }: StatCardProps) {
   const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? "light"];
 
   return (
     <ThemedView
       style={[
         styles.card,
-        { backgroundColor: Colors[colorScheme ?? "light"].cardBackground },
+        {
+          backgroundColor: colors.cardBackground,
+          borderColor: colors.cardBorder,
+        },
       ]}
     >
       <View style={styles.cardHeader}>
         <IconSymbol name={iconName} size={22} color={color} />
-        <ThemedText type="defaultSemiBold" style={styles.cardTitle}>
+        <ThemedText
+          type="defaultSemiBold"
+          style={[styles.cardTitle, { color: colors.text }]}
+        >
           {title}
         </ThemedText>
       </View>
       <ThemedText type="title" style={[styles.calorieNumber, { color }]}>
         {value}
       </ThemedText>
-      <ThemedText type="default" style={styles.calorieLabel}>
+      <ThemedText
+        type="default"
+        style={[styles.calorieLabel, { color: colors.textSecondary }]}
+      >
         calories
       </ThemedText>
     </ThemedView>
@@ -50,24 +55,23 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
+    borderWidth: 0.5,
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
-    gap: 7,
+    marginBottom: 8,
+    gap: 6,
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 14,
   },
   calorieNumber: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "700",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   calorieLabel: {
     fontSize: 12,
-    opacity: 0.7,
   },
 });

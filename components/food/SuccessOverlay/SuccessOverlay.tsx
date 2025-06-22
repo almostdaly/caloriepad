@@ -1,6 +1,6 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import * as Haptics from "expo-haptics";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Animated, Modal, StyleSheet } from "react-native";
 
 interface SuccessOverlayProps {
@@ -12,7 +12,7 @@ export function SuccessOverlay({ visible, onComplete }: SuccessOverlayProps) {
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const checkScale = useRef(new Animated.Value(0)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (visible) {
       // Haptic feedback
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -32,8 +32,8 @@ export function SuccessOverlay({ visible, onComplete }: SuccessOverlayProps) {
         useNativeDriver: true,
       }).start();
 
-      // Auto dismiss and navigate after 1.2 seconds
-      setTimeout(() => {
+      // Auto dismiss after 1.2 seconds
+      const timer = setTimeout(() => {
         Animated.timing(overlayOpacity, {
           toValue: 0,
           duration: 200,
@@ -45,6 +45,8 @@ export function SuccessOverlay({ visible, onComplete }: SuccessOverlayProps) {
           onComplete();
         });
       }, 1200);
+
+      return () => clearTimeout(timer);
     }
   }, [visible, overlayOpacity, checkScale, onComplete]);
 
@@ -55,7 +57,14 @@ export function SuccessOverlay({ visible, onComplete }: SuccessOverlayProps) {
       animationType="none"
       statusBarTranslucent={true}
     >
-      <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
+      <Animated.View
+        style={[
+          styles.overlay,
+          {
+            opacity: overlayOpacity,
+          },
+        ]}
+      >
         <Animated.View
           style={[
             styles.checkContainer,

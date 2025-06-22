@@ -1,21 +1,18 @@
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { ThemedText } from "@/components/ui/ThemedText";
+import { ThemedView } from "@/components/ui/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { FoodEntry } from "@/types";
 import React from "react";
 import { Pressable, StyleSheet } from "react-native";
-import { ThemedText } from "./ThemedText";
-import { ThemedView } from "./ThemedView";
-import { IconSymbol } from "./ui/IconSymbol";
 
 interface TodayEntriesListProps {
   entries: FoodEntry[];
   onViewAll?: () => void;
 }
 
-export function TodayEntriesList({
-  entries,
-  onViewAll,
-}: TodayEntriesListProps) {
+export function EntriesList({ entries, onViewAll }: TodayEntriesListProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
