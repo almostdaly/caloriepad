@@ -1,0 +1,182 @@
+[
+  {
+    "id": "apple-medium",
+    "name": "Apple",
+    "caloriesPerServing": 95,
+    "servingSize": "1 medium (182g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "banana-medium",
+    "name": "Banana",
+    "caloriesPerServing": 105,
+    "servingSize": "1 medium (118g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "orange-medium",
+    "name": "Orange",
+    "caloriesPerServing": 62,
+    "servingSize": "1 medium (154g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "chicken-breast-100g",
+    "name": "Chicken Breast",
+    "caloriesPerServing": 165,
+    "servingSize": "100g",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "rice-cooked-cup",
+    "name": "White Rice (cooked)",
+    "caloriesPerServing": 205,
+    "servingSize": "1 cup (158g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "bread-slice",
+    "name": "White Bread",
+    "caloriesPerServing": 79,
+    "servingSize": "1 slice (28g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "egg-large",
+    "name": "Egg",
+    "caloriesPerServing": 70,
+    "servingSize": "1 large (50g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "milk-cup",
+    "name": "Milk (2%)",
+    "caloriesPerServing": 122,
+    "servingSize": "1 cup (244g)",
+    "category": "drink",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "coffee-black",
+    "name": "Black Coffee",
+    "caloriesPerServing": 2,
+    "servingSize": "1 cup (240ml)",
+    "category": "drink",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "water-bottle",
+    "name": "Water",
+    "caloriesPerServing": 0,
+    "servingSize": "1 bottle (500ml)",
+    "category": "drink",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "almonds-28g",
+    "name": "Almonds",
+    "caloriesPerServing": 162,
+    "servingSize": "28g (about 23 almonds)",
+    "category": "snack",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "yogurt-greek-cup",
+    "name": "Greek Yogurt (plain)",
+    "caloriesPerServing": 100,
+    "servingSize": "1 cup (170g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "pasta-cooked-cup",
+    "name": "Pasta (cooked)",
+    "caloriesPerServing": 220,
+    "servingSize": "1 cup (140g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "salmon-100g",
+    "name": "Salmon",
+    "caloriesPerServing": 208,
+    "servingSize": "100g",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "avocado-half",
+    "name": "Avocado",
+    "caloriesPerServing": 160,
+    "servingSize": "1/2 medium (100g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "oatmeal-cooked-cup",
+    "name": "Oatmeal (cooked)",
+    "caloriesPerServing": 147,
+    "servingSize": "1 cup (234g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "pizza-slice",
+    "name": "Pizza Slice",
+    "caloriesPerServing": 285,
+    "servingSize": "1 slice (107g)",
+    "category": "food",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "chocolate-bar",
+    "name": "Milk Chocolate Bar",
+    "caloriesPerServing": 235,
+    "servingSize": "1 bar (43g)",
+    "category": "snack",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "soda-can",
+    "name": "Coca Cola",
+    "caloriesPerServing": 140,
+    "servingSize": "1 can (355ml)",
+    "category": "drink",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "orange-juice-cup",
+    "name": "Orange Juice",
+    "caloriesPerServing": 112,
+    "servingSize": "1 cup (248ml)",
+    "category": "drink",
+    "isFavorite": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+]

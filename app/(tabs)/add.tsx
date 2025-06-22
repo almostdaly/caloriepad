@@ -1,27 +1,89 @@
+import { QuickAddFood } from "@/components/QuickAddFood";
+import { RecentFoodsQuickAdd } from "@/components/RecentFoodsQuickAdd";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { useApp } from "@/contexts/AppContext";
+import { FoodEntry, FoodItem } from "@/types";
+import React, { useState } from "react";
+import { Alert, SafeAreaView, StyleSheet } from "react-native";
 
-export default function AddFoodScreen() {
+export default function AddScreen() {
+  const { addFoodEntry } = useApp();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleFoodAdded = () => {
+    // Food was successfully added via quick add
+    // Trigger refresh of recent foods
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  const handleSelectRecentFood = async (food: FoodItem) => {
+    Alert.alert(
+      "Add Food",
+      `Add ${food.name} (${food.caloriesPerServing} calories) to your daily log?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Add",
+          onPress: async () => {
+            try {
+              const entry: FoodEntry = {
+                id: `entry-${Date.now()}-${Math.random()
+                  .toString(36)
+                  .substr(2, 9)}`,
+                foodItem: food,
+                quantity: 1,
+                totalCalories: food.caloriesPerServing,
+                timestamp: new Date(),
+              };
+
+              await addFoodEntry(entry);
+
+              // Trigger refresh of recent foods
+              setRefreshTrigger((prev) => prev + 1);
+
+              Alert.alert(
+                "Added!",
+                `${food.name} has been added to your daily log.`,
+                [{ text: "OK" }]
+              );
+            } catch (error) {
+              console.error("Error adding food:", error);
+              Alert.alert(
+                "Error",
+                "Failed to add food entry. Please try again."
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
-    <ThemedView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ThemedView style={styles.header}>
         <ThemedText type="title">Add Food</ThemedText>
         <ThemedText type="default" style={styles.subtitle}>
-          Search and add food to your daily log
+          Enter a food name and calories to add to your log
         </ThemedText>
       </ThemedView>
 
-      <ScrollView style={styles.content}>
-        <ThemedView style={styles.comingSoon}>
-          <ThemedText type="subtitle">Coming Soon</ThemedText>
-          <ThemedText type="default" style={styles.comingSoonText}>
-            Food search and adding functionality will be implemented next
-          </ThemedText>
-        </ThemedView>
-      </ScrollView>
-    </ThemedView>
+      <ThemedView style={styles.content}>
+        <QuickAddFood
+          onFoodAdded={handleFoodAdded}
+          addFoodEntry={addFoodEntry}
+        />
+
+        <RecentFoodsQuickAdd
+          onSelectFood={handleSelectRecentFood}
+          refreshTrigger={refreshTrigger}
+        />
+      </ThemedView>
+    </SafeAreaView>
   );
 }
 
@@ -30,8 +92,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 20,
-    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   subtitle: {
     marginTop: 4,
@@ -39,16 +101,5 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-  },
-  comingSoon: {
-    alignItems: "center",
-    marginTop: 100,
-    paddingHorizontal: 40,
-  },
-  comingSoonText: {
-    marginTop: 8,
-    textAlign: "center",
-    opacity: 0.7,
   },
 });

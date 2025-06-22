@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useReducer,
 } from "react";
+import { FoodService } from "../services/foodService";
 import { StorageService } from "../services/storage";
 import {
   DayData,
@@ -156,6 +157,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     const initializeApp = async () => {
       try {
         dispatch({ type: "SET_LOADING", payload: true });
+
+        // Initialize food database
+        await FoodService.initializeFoodDatabase();
 
         // Load today's entries
         const todayEntries = await StorageService.getDayEntries(

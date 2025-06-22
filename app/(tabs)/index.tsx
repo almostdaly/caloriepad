@@ -35,6 +35,9 @@ export default function TodayScreen() {
     console.log("View all entries");
   };
 
+  // Calculate net calories (consumed - burned)
+  const netCalories = todayCaloriesConsumed - (todayCaloriesBurned || 0);
+
   return (
     <ThemedView style={styles.container}>
       <ScrollView
@@ -66,6 +69,16 @@ export default function TodayScreen() {
             value={todayCaloriesBurned || 0}
             iconName="flame"
             color={Colors[colorScheme ?? "light"].healthRed}
+          />
+          <CalorieStatCard
+            title="Net"
+            value={netCalories}
+            iconName={netCalories >= 0 ? "plus.circle" : "minus.circle"}
+            color={
+              netCalories >= 0
+                ? Colors[colorScheme ?? "light"].healthGreen
+                : Colors[colorScheme ?? "light"].healthBlue
+            }
           />
         </ThemedView>
 
@@ -109,7 +122,7 @@ const styles = StyleSheet.create({
   summarySection: {
     flexDirection: "row",
     paddingHorizontal: 20,
-    gap: 12,
+    gap: 8,
     marginBottom: 16,
   },
 });

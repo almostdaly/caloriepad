@@ -17,27 +17,39 @@ export function TodayEntriesList({
   onViewAll,
 }: TodayEntriesListProps) {
   const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? "light"];
 
   if (entries.length === 0) {
     return (
-      <ThemedView style={styles.entriesSection}>
-        <ThemedView style={styles.sectionHeader}>
+      <ThemedView
+        style={[styles.entriesSection, { backgroundColor: "transparent" }]}
+      >
+        <ThemedView
+          style={[styles.sectionHeader, { backgroundColor: "transparent" }]}
+        >
           <ThemedText type="subtitle">Today&apos;s Entries</ThemedText>
-          <ThemedText type="default" style={styles.entriesCount}>
+          <ThemedText
+            type="default"
+            style={[styles.entriesCount, { color: colors.textSecondary }]}
+          >
             0 entries
           </ThemedText>
         </ThemedView>
 
-        <ThemedView style={styles.emptyState}>
-          <IconSymbol
-            name="plus.circle"
-            size={32}
-            color={Colors[colorScheme ?? "light"].icon}
-          />
-          <ThemedText type="default" style={styles.emptyText}>
+        <ThemedView
+          style={[styles.emptyState, { backgroundColor: "transparent" }]}
+        >
+          <IconSymbol name="plus.circle" size={32} color={colors.icon} />
+          <ThemedText
+            type="default"
+            style={[styles.emptyText, { color: colors.text }]}
+          >
             No entries yet today
           </ThemedText>
-          <ThemedText type="default" style={styles.emptySubtext}>
+          <ThemedText
+            type="default"
+            style={[styles.emptySubtext, { color: colors.textSecondary }]}
+          >
             Tap &quot;Add Food&quot; to get started
           </ThemedText>
         </ThemedView>
@@ -46,39 +58,60 @@ export function TodayEntriesList({
   }
 
   return (
-    <ThemedView style={styles.entriesSection}>
-      <ThemedView style={styles.sectionHeader}>
+    <ThemedView
+      style={[styles.entriesSection, { backgroundColor: "transparent" }]}
+    >
+      <ThemedView
+        style={[styles.sectionHeader, { backgroundColor: "transparent" }]}
+      >
         <ThemedText type="subtitle">Today&apos;s Entries</ThemedText>
-        <ThemedText type="default" style={styles.entriesCount}>
+        <ThemedText
+          type="default"
+          style={[styles.entriesCount, { color: colors.textSecondary }]}
+        >
           {entries.length} {entries.length === 1 ? "entry" : "entries"}
         </ThemedText>
       </ThemedView>
 
-      <ThemedView>
+      <ThemedView style={{ backgroundColor: "transparent" }}>
         {entries.slice(0, 5).map((entry) => (
           <ThemedView
             key={entry.id}
             style={[
               styles.entryItem,
               {
-                backgroundColor: Colors[colorScheme ?? "light"].cardBackground,
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.cardBorder,
               },
             ]}
           >
-            <ThemedView style={styles.entryHeader}>
-              <ThemedText type="defaultSemiBold">
+            <ThemedView
+              style={[styles.entryHeader, { backgroundColor: "transparent" }]}
+            >
+              <ThemedText type="defaultSemiBold" style={{ color: colors.text }}>
                 {entry.foodItem.name}
               </ThemedText>
-              <ThemedText type="default" style={styles.entryCalories}>
+              <ThemedText
+                type="default"
+                style={[styles.entryCalories, { color: colors.healthOrange }]}
+              >
                 {entry.totalCalories} cal
               </ThemedText>
             </ThemedView>
-            <ThemedView style={styles.entryDetails}>
-              <ThemedText type="default" style={styles.entryMeta}>
+            <ThemedView
+              style={[styles.entryDetails, { backgroundColor: "transparent" }]}
+            >
+              <ThemedText
+                type="default"
+                style={[styles.entryMeta, { color: colors.textSecondary }]}
+              >
                 {entry.quantity}x {entry.foodItem.servingSize} •{" "}
                 {entry.foodItem.category}
               </ThemedText>
-              <ThemedText type="default" style={styles.entryTime}>
+              <ThemedText
+                type="default"
+                style={[styles.entryTime, { color: colors.textSecondary }]}
+              >
                 {new Date(entry.timestamp).toLocaleTimeString("en-US", {
                   hour: "numeric",
                   minute: "2-digit",
@@ -90,15 +123,17 @@ export function TodayEntriesList({
         ))}
 
         {entries.length > 5 && onViewAll && (
-          <Pressable style={styles.viewAllButton} onPress={onViewAll}>
-            <ThemedText type="default" style={styles.viewAllText}>
+          <Pressable
+            style={[styles.viewAllButton, { backgroundColor: "transparent" }]}
+            onPress={onViewAll}
+          >
+            <ThemedText
+              type="default"
+              style={[styles.viewAllText, { color: colors.textSecondary }]}
+            >
               View all {entries.length} entries
             </ThemedText>
-            <IconSymbol
-              name="chevron.right"
-              size={16}
-              color={Colors[colorScheme ?? "light"].icon}
-            />
+            <IconSymbol name="chevron.right" size={16} color={colors.icon} />
           </Pressable>
         )}
       </ThemedView>
@@ -118,7 +153,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   entriesCount: {
-    opacity: 0.7,
     fontSize: 14,
   },
   emptyState: {
@@ -133,13 +167,13 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     marginTop: 4,
-    opacity: 0.7,
     textAlign: "center",
   },
   entryItem: {
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
+    borderWidth: 0.5,
   },
   entryHeader: {
     flexDirection: "row",
@@ -157,11 +191,9 @@ const styles = StyleSheet.create({
   },
   entryMeta: {
     fontSize: 14,
-    opacity: 0.7,
   },
   entryTime: {
     fontSize: 12,
-    opacity: 0.7,
   },
   viewAllButton: {
     flexDirection: "row",
@@ -171,6 +203,6 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   viewAllText: {
-    opacity: 0.7,
+    // Remove opacity, use color directly
   },
 });

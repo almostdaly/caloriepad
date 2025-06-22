@@ -1,0 +1,47 @@
+# CaloriePad Project Rules
+
+## Framework and Platform
+
+- This is an Expo React Native project
+- Use React Native components and styling (NOT web components or CSS frameworks)
+- Import from 'react-native' package for core components
+- Use `@/components/Themed` for ThemedText and ThemedView primitives, not react native built ins.
+- We use EAS to build development versions
+- Use expo modules where appropriate
+
+## Component Guidelines
+
+- Use `View` instead of `div`
+- Use `Text` instead of `p`, `span`, etc.
+- Use `StyleSheet.create()` for styles
+- Use `Pressable` or `TouchableOpacity` for interactive elements (not `button`)
+- Follow React Native's layout system (flexbox-like) with style props
+- Use `@/components/themed` for ThemedText and ThemedView primitives, not react native built ins.
+
+## Styling Rules
+
+- NO web-specific styling frameworks (e.g., Tailwind, CSS Modules)
+- Use React Native's StyleSheet API
+- Follow mobile-first design principles
+- Use platform-specific components when needed (`Platform.select`)
+
+## TypeScript
+
+- Use TypeScript for type safety
+- Define interfaces for component props
+- Use React.FC type for functional components
+- Always use the alias imports and not relative path (e.g. `@/components`, `@/hooks`)
+- Do not use `any`
+
+## File Structure
+
+- Components in `/components` directory
+- Screens in `/screens` directory
+- Styles should be colocated with components
+- Use .tsx extension for TypeScript React Native files
+
+## Project Guidelines
+
+- I want to use everything native/built in as possible
+- The app should be super native feeling and pure
+- It should be clean and minmal UI so dont over engineer solutions

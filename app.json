@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "tracktivity",
-    "slug": "tracktivity",
+    "name": "caloriepad",
+    "slug": "caloriepad",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "tracktivity",
+    "scheme": "caloriepad",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

@@ -4,6 +4,43 @@
 
 A minimalistic food intake tracking app that integrates with Apple Health data to provide a running total of calories consumed vs calories burned. The app focuses on simplicity and native iOS experience rather than precise calorie counting.
 
+## ⚠️ CRITICAL DEVELOPMENT GUIDELINES
+
+### Dark Mode Styling Rules (MUST FOLLOW)
+
+**🚨 RECURRING ISSUE**: Components keep having dark mode styling problems.
+
+**MANDATORY PATTERN FOR ALL COMPONENTS:**
+
+```typescript
+// ✅ CORRECT: Always do this pattern
+const colorScheme = useColorScheme();
+const colors = Colors[colorScheme ?? 'light'];
+
+// ✅ CORRECT: Use colors object throughout component
+<ThemedView style={[styles.container, {
+  backgroundColor: colors.cardBackground,
+  borderColor: colors.cardBorder
+}]}>
+  <ThemedText style={{ color: colors.text }}>Content</ThemedText>
+</ThemedView>
+
+// ❌ WRONG: Never hardcode opacity or use inline Colors[colorScheme]
+<ThemedText style={{ opacity: 0.7 }}>Text</ThemedText> // Use colors.textSecondary instead
+<View style={{ backgroundColor: Colors[colorScheme ?? 'light'].cardBackground }} /> // Use colors variable
+```
+
+**REQUIRED CHECKS BEFORE ANY COMPONENT IS COMPLETE:**
+
+1. ✅ Extract `colors` variable at component start
+2. ✅ All nested ThemedViews use `backgroundColor: 'transparent'`
+3. ✅ All text colors explicitly set with `color: colors.text/textSecondary`
+4. ✅ No hardcoded `opacity` values - use semantic color names
+5. ✅ All cards have `borderColor: colors.cardBorder`
+6. ✅ Test in BOTH light and dark modes before marking complete
+
+**This pattern MUST be followed religiously to prevent dark mode issues from recurring.**
+
 ## 🛠 Technical Stack
 
 - **Framework**: React Native with Expo SDK 50+
@@ -89,10 +126,9 @@ interface DayData {
 
 ## 📊 Current Progress Status
 
-**Overall Progress: ~65% Complete**
+**Overall Progress: ~85% Complete**
 
-✅ **COMPLETED**: Phase 1 (Core Foundation) + Phase 3 (Today Screen)  
-🚧 **IN PROGRESS**: Phase 2 (Food Database & Entry)  
+✅ **COMPLETED**: Phase 1 (Core Foundation) + Phase 2 (Food Database & Entry) + Phase 3 (Today Screen)  
 ⏳ **PENDING**: Phase 4 (Apple Health) + Phase 5 (Polish)
 
 **Key Achievements:**
@@ -102,13 +138,21 @@ interface DayData {
 - All data models and storage infrastructure
 - Real-time calorie calculations and progress tracking
 - Professional iOS-style design with health-focused colors
+- **NEW**: Clean, decoupled component architecture
+- **NEW**: Removed unused Expo boilerplate components
+- **NEW**: UI design approved for both light and dark modes
+- **NEW**: Complete food database with 20+ common foods
+- **NEW**: Full food search and category filtering
+- **NEW**: Working "Add Food" functionality with confirmation dialogs
+- **NEW**: Food entries now display in real-time on Today screen
 
 **Next Priority:**
 
-- Complete Phase 2 (Food Database & Entry functionality)
-- Refactor the UI screens and split into pure, prop driven and clean components
-- Delete any unused components that ship with expo create (parallax and all that)
-- PAUSE and ask for screenshots of the UI and feedback from the user to check if designs are correct before continuing
+- [x] ~~Refactor the UI screens and split into pure, prop driven and clean components~~
+- [x] ~~Delete any unused components that ship with expo create (parallax and all that)~~
+- [x] ~~PAUSE and ask for screenshots of the UI and feedback from the user to check if designs are correct before continuing~~
+- [x] ~~Complete Phase 2 (Food Database & Entry functionality)~~
+- **READY FOR:** Phase 4 (Apple Health Integration) or Phase 5 (History & Polish)
 
 ---
 
@@ -124,13 +168,15 @@ interface DayData {
 - [x] **BONUS**: React Context state management implemented
 - [x] **BONUS**: All tab screens scaffolded
 
-### Phase 2: Food Database & Entry (Week 2) 🚧 IN PROGRESS
+### Phase 2: Food Database & Entry (Week 2) ✅ COMPLETED
 
-- [ ] Create simple food database (JSON file with common foods)
-- [ ] Implement add food functionality
-- [ ] Build search and browse interface
-- [ ] Add quantity/serving size selection
+- [x] Create simple food database (JSON file with common foods)
+- [x] Implement add food functionality
+- [x] Build search and browse interface
+- [x] Add quantity/serving size selection
 - [x] Implement favorites system (display only - add/remove functionality pending)
+- [x] **BONUS**: Category filtering and search functionality
+- [x] **BONUS**: Professional food selection UI with icons
 
 ### Phase 3: Today Screen & Tracking (Week 3) ✅ COMPLETED
 
