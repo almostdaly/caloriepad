@@ -68,7 +68,7 @@ export function RecentQuickAdd({
       // Convert to array and sort by timestamp (most recent first)
       const sortedFoods = Array.from(uniqueFoods.values())
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-        .slice(0, 3) // Show max 3 recent foods
+        .slice(0, 4) // Show max 3 recent foods
         .map((item) => item.food);
 
       setRecentFoods(sortedFoods);

@@ -10,9 +10,14 @@ import { Pressable, StyleSheet } from "react-native";
 interface TodayEntriesListProps {
   entries: FoodEntry[];
   onViewAll?: () => void;
+  onNavigateToAdd?: () => void;
 }
 
-export function EntriesList({ entries, onViewAll }: TodayEntriesListProps) {
+export function EntriesList({
+  entries,
+  onViewAll,
+  onNavigateToAdd,
+}: TodayEntriesListProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
@@ -27,23 +32,24 @@ export function EntriesList({ entries, onViewAll }: TodayEntriesListProps) {
           <ThemedText type="subtitle">Today&apos;s Entries</ThemedText>
         </ThemedView>
 
-        <ThemedView
+        <Pressable
           style={[styles.emptyState, { backgroundColor: "transparent" }]}
+          onPress={onNavigateToAdd}
         >
-          <IconSymbol name="plus.circle" size={32} color={colors.icon} />
+          <IconSymbol name="plus.circle" size={32} color={colors.tint} />
           <ThemedText
             type="default"
             style={[styles.emptyText, { color: colors.text }]}
           >
-            No entries yet today
+            Nothing added so far
           </ThemedText>
           <ThemedText
             type="default"
             style={[styles.emptySubtext, { color: colors.textSecondary }]}
           >
-            Tap &quot;Add Food&quot; to get started
+            Tap to add your first food
           </ThemedText>
-        </ThemedView>
+        </Pressable>
       </ThemedView>
     );
   }
@@ -140,7 +146,7 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     alignItems: "center",
-    paddingVertical: 40,
+    paddingVertical: 10,
     paddingHorizontal: 20,
   },
   emptyText: {

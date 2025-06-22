@@ -269,15 +269,15 @@ interface DayData {
 
 ### Phase 4: Developer Tools (Week 4A) ⏳ PENDING
 
-- [ ] Set up HealthKit permissions (integrated with onboarding)
-- [ ] Add hidden developer settings screen
-- [ ] Accessible from settings page via pressable (development mode only)
-- [ ] Create new "Developer Mode" screen with the following features:
-  - [ ] Reset today's log functionality
-  - [ ] Reset custom food data functionality
-  - [ ] Reset all data (factory reset) functionality - needs to re ask for permissions from health
-- [ ] Ensure developer features are never shown in release builds
-- [ ] Add proper confirmation dialogs for destructive actions
+- [x] Set up HealthKit permissions (integrated with onboarding)
+- [x] Add hidden developer settings screen
+- [x] Accessible from settings page via pressable (development mode only)
+- [x] Create new "Developer Mode" screen with the following features:
+  - [x] Reset today's log functionality
+  - [x] Reset custom food data functionality
+  - [x] Reset all data (factory reset) functionality - needs to re ask for permissions from health
+- [x] Ensure developer features are never shown in release builds
+- [x] Add proper confirmation dialogs for destructive actions
 
 ### Phase 5: User Onboarding (Week 4B) ⏳ PENDING
 

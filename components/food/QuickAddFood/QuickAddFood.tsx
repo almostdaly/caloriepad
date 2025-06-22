@@ -11,33 +11,29 @@ import {
   createDebouncer,
   searchFoodsWithDebounce,
 } from "@/utils/foodUtils";
-import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Pressable, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Alert, Pressable, StyleSheet, TextInput } from "react-native";
 import { CalorieControls } from "../CalorieControls";
+import { SearchBottomSheet } from "../SearchBottomSheet";
 import { SearchInput } from "../SearchInput";
 import { SuccessOverlay } from "../SuccessOverlay";
-import { SuggestionsList } from "../SuggestionsList";
 import { TotalDisplay } from "../TotalDisplay";
 
 interface QuickAddFoodProps {
   onFoodAdded: () => void;
   addFoodEntry: (entry: FoodEntry) => Promise<void>;
-  onNavigateToHome?: () => void;
 }
 
-export function QuickAddFood({
-  onFoodAdded,
-  addFoodEntry,
-  onNavigateToHome,
-}: QuickAddFoodProps) {
+export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
+  const searchInputRef = useRef<TextInput>(null);
 
   const [foodName, setFoodName] = useState("");
   const [calories, setCalories] = useState(100);
   const [quantity, setQuantity] = useState(1);
   const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [isAcceptedSuggestion, setIsAcceptedSuggestion] = useState(false);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -48,22 +44,21 @@ export function QuickAddFood({
     async (query: string) => {
       if (query.trim().length > 2 && !isAcceptedSuggestion) {
         setIsSearching(true);
+        setShowSearchModal(true);
         await searchFoodsWithDebounce(
           query,
           (results) => {
             setSearchResults(results);
-            setShowSuggestions(results.length > 0);
             setIsSearching(false);
           },
           () => {
             setSearchResults([]);
-            setShowSuggestions(false);
             setIsSearching(false);
           }
         );
       } else {
         setSearchResults([]);
-        setShowSuggestions(false);
+        setShowSearchModal(false);
         setIsSearching(false);
       }
     },
@@ -72,7 +67,6 @@ export function QuickAddFood({
 
   useEffect(() => {
     debouncer.debounce(() => performSearch(foodName), 500);
-
     return () => debouncer.clear();
   }, [foodName, performSearch]);
 
@@ -86,7 +80,7 @@ export function QuickAddFood({
   const handleClearFoodName = () => {
     setFoodName("");
     setIsAcceptedSuggestion(false);
-    setShowSuggestions(false);
+    setShowSearchModal(false);
     setSearchResults([]);
     setIsSearching(false);
   };
@@ -95,14 +89,18 @@ export function QuickAddFood({
     setFoodName(food.name);
     setCalories(food.caloriesPerServing);
     setIsAcceptedSuggestion(true);
-    setShowSuggestions(false);
+    setShowSearchModal(false);
     setSearchResults([]);
   };
 
   const handleSelectCustom = () => {
     setIsAcceptedSuggestion(true);
-    setShowSuggestions(false);
+    setShowSearchModal(false);
     setSearchResults([]);
+  };
+
+  const handleCloseSearchModal = () => {
+    setShowSearchModal(false);
   };
 
   const handleCalorieChange = (amount: number) => {
@@ -115,7 +113,8 @@ export function QuickAddFood({
 
   const handleSuccessComplete = () => {
     setShowSuccessOverlay(false);
-    onNavigateToHome?.();
+    // Blur the search input to prevent auto-focus
+    searchInputRef.current?.blur();
   };
 
   const handleQuickAdd = async () => {
@@ -171,13 +170,16 @@ export function QuickAddFood({
       await addFoodEntry(entry);
       onFoodAdded();
 
+      // Blur input before resetting to prevent auto-focus
+      searchInputRef.current?.blur();
+
       // Reset form
       setFoodName("");
       setCalories(100);
       setQuantity(1);
       setIsAcceptedSuggestion(false);
       setSearchResults([]);
-      setShowSuggestions(false);
+      setShowSearchModal(false);
 
       // Show success animation
       setShowSuccessOverlay(true);
@@ -214,18 +216,12 @@ export function QuickAddFood({
           style={[styles.inputContainer, { backgroundColor: "transparent" }]}
         >
           <SearchInput
+            ref={searchInputRef}
             value={foodName}
             onChangeText={handleFoodNameChange}
             onClear={handleClearFoodName}
             placeholder="Enter food name..."
             isLoading={isSearching}
-          />
-          <SuggestionsList
-            currentFood={foodName}
-            suggestions={searchResults}
-            onSelectSuggestion={handleSelectSuggestion}
-            onSelectCustom={handleSelectCustom}
-            visible={showSuggestions}
           />
         </ThemedView>
 
@@ -255,6 +251,16 @@ export function QuickAddFood({
           <ThemedText style={styles.addButtonText}>Add to Today</ThemedText>
         </Pressable>
       </ThemedView>
+
+      <SearchBottomSheet
+        visible={showSearchModal}
+        currentFood={foodName}
+        suggestions={searchResults}
+        isLoading={isSearching}
+        onSelectSuggestion={handleSelectSuggestion}
+        onSelectCustom={handleSelectCustom}
+        onClose={handleCloseSearchModal}
+      />
 
       <SuccessOverlay
         visible={showSuccessOverlay}

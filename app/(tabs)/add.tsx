@@ -19,10 +19,6 @@ export default function AddScreen() {
     setRefreshTrigger((prev) => prev + 1);
   };
 
-  const navigateToHome = () => {
-    router.push("/(tabs)");
-  };
-
   const handleSelectRecentFood = async (food: FoodItem) => {
     Alert.alert(
       "Add Food",
@@ -82,7 +78,6 @@ export default function AddScreen() {
         <QuickAddFood
           onFoodAdded={handleFoodAdded}
           addFoodEntry={addFoodEntry}
-          onNavigateToHome={navigateToHome}
         />
 
         <RecentQuickAdd

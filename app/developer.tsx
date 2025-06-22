@@ -219,9 +219,7 @@ export default function DeveloperScreen() {
         <ScrollView style={styles.scrollView}>
           {/* Storage Statistics */}
           <ThemedView style={styles.section}>
-            <ThemedText
-              style={[styles.sectionHeader, { color: colors.textSecondary }]}
-            >
+            <ThemedText style={[styles.sectionHeader, { color: colors.text }]}>
               Storage Statistics
             </ThemedText>
             <ThemedView
@@ -262,9 +260,7 @@ export default function DeveloperScreen() {
 
           {/* Reset Functions */}
           <ThemedView style={styles.section}>
-            <ThemedText
-              style={[styles.sectionHeader, { color: colors.textSecondary }]}
-            >
+            <ThemedText style={[styles.sectionHeader, { color: colors.text }]}>
               Reset Functions
             </ThemedText>
             <ThemedView
@@ -351,6 +347,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    marginLeft: 16,
+    marginLeft: 8,
+    marginRight: 8,
   },
 });

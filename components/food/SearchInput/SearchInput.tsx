@@ -18,55 +18,63 @@ interface SearchInputProps {
   isLoading?: boolean;
 }
 
-export function SearchInput({
-  value,
-  onChangeText,
-  onClear,
-  placeholder = "Enter food name...",
-  isLoading = false,
-}: SearchInputProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? "light"];
+export const SearchInput = React.forwardRef<TextInput, SearchInputProps>(
+  function SearchInput(
+    {
+      value,
+      onChangeText,
+      onClear,
+      placeholder = "Enter food name...",
+      isLoading = false,
+    },
+    ref
+  ) {
+    const colorScheme = useColorScheme();
+    const colors = Colors[colorScheme ?? "light"];
 
-  return (
-    <ThemedView style={[styles.container, { backgroundColor: "transparent" }]}>
-      <TextInput
-        style={[
-          styles.input,
-          {
-            backgroundColor: colors.cardBackground,
-            borderColor: colors.separator,
-            color: colors.text,
-          },
-        ]}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={colors.textSecondary}
-        returnKeyType="done"
-        clearButtonMode="never"
-      />
-      {value.length > 0 && (
-        <ThemedView
+    return (
+      <ThemedView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+      >
+        <TextInput
+          ref={ref}
           style={[
-            styles.actionButton,
+            styles.input,
             {
-              backgroundColor: colors.backgroundSecondary,
+              backgroundColor: colors.cardBackground,
+              borderColor: colors.separator,
+              color: colors.text,
             },
           ]}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color={colors.tint} />
-          ) : (
-            <Pressable onPress={onClear} style={styles.pressable}>
-              <IconSymbol name="xmark" size={12} color={colors.icon} />
-            </Pressable>
-          )}
-        </ThemedView>
-      )}
-    </ThemedView>
-  );
-}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={colors.textSecondary}
+          returnKeyType="done"
+          clearButtonMode="never"
+        />
+        {value.length > 0 && (
+          <ThemedView
+            style={[
+              styles.actionButton,
+              {
+                backgroundColor: colors.backgroundSecondary,
+              },
+            ]}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color={colors.tint} />
+            ) : (
+              <Pressable onPress={onClear} style={styles.pressable}>
+                <IconSymbol name="xmark" size={12} color={colors.icon} />
+              </Pressable>
+            )}
+          </ThemedView>
+        )}
+      </ThemedView>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   container: {

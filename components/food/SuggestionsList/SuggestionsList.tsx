@@ -31,8 +31,14 @@ export function SuggestionsList({
       style={[
         styles.container,
         {
-          backgroundColor: colors.cardBackground,
+          backgroundColor:
+            colorScheme === "dark" ? colors.cardBackground : "#FFFFFF",
           borderColor: colors.separator,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: colorScheme === "dark" ? 0.4 : 0.15,
+          shadowRadius: 16,
+          elevation: 12,
         },
       ]}
     >
@@ -67,22 +73,31 @@ export function SuggestionsList({
               <ThemedText
                 style={[
                   styles.suggestionCalories,
-                  { color: colors.healthOrange },
+                  { color: colors.textSecondary },
                 ]}
               >
-                {food.caloriesPerServing}
+                {food.caloriesPerServing} cal
               </ThemedText>
             </ThemedView>
           </Pressable>
         ))}
 
         {/* Custom food option */}
+        {suggestions.length > 0 && (
+          <ThemedView
+            style={[styles.separator, { backgroundColor: colors.separator }]}
+          />
+        )}
+
         <Pressable
           style={[
             styles.suggestion,
             styles.customSuggestion,
             {
-              backgroundColor: colors.backgroundSecondary,
+              backgroundColor:
+                colorScheme === "dark"
+                  ? colors.backgroundSecondary
+                  : colors.backgroundSecondary,
             },
           ]}
           onPress={onSelectCustom}
@@ -93,7 +108,7 @@ export function SuggestionsList({
               { backgroundColor: "transparent" },
             ]}
           >
-            <ThemedText style={[styles.suggestionName, { color: colors.tint }]}>
+            <ThemedText style={[styles.customText, { color: colors.tint }]}>
               Add &quot;{currentFood}&quot; as custom food
             </ThemedText>
           </ThemedView>
@@ -109,12 +124,12 @@ const styles = StyleSheet.create({
     top: "100%",
     left: 0,
     right: 0,
-    maxHeight: 180,
-    borderWidth: 1,
-    borderTopWidth: 0,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
+    maxHeight: 200,
+    borderRadius: 16,
+    marginTop: 8,
     zIndex: 1000,
+    overflow: "hidden",
+    borderWidth: 1,
   },
   scrollView: {
     flex: 1,
@@ -123,8 +138,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     minHeight: 50,
   },
   suggestionContent: {
@@ -132,21 +147,30 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     flex: 1,
-    gap: 8,
+    gap: 12,
   },
   suggestionName: {
     flex: 1,
-    fontSize: 14,
-    fontWeight: "500",
-    lineHeight: 18,
+    fontSize: 16,
+    fontWeight: "400",
+    lineHeight: 20,
   },
   suggestionCalories: {
     fontSize: 14,
-    fontWeight: "600",
-    minWidth: 45,
+    fontWeight: "500",
+    minWidth: 50,
     textAlign: "right",
   },
+  separator: {
+    height: 1,
+    marginHorizontal: 16,
+  },
   customSuggestion: {
-    borderTopWidth: 0.5,
+    paddingVertical: 16,
+  },
+  customText: {
+    fontSize: 16,
+    fontWeight: "500",
+    flex: 1,
   },
 });

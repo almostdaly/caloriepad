@@ -6,6 +6,7 @@ import { ThemedView } from "@/components/ui/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { useApp } from "@/contexts/AppContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useRouter } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
@@ -19,6 +20,7 @@ export default function TodayScreen() {
     loading,
   } = state;
   const colorScheme = useColorScheme();
+  const router = useRouter();
 
   if (loading) {
     return (
@@ -35,8 +37,15 @@ export default function TodayScreen() {
     console.log("View all entries");
   };
 
+  const handleNavigateToAdd = () => {
+    router.push("/(tabs)/add");
+  };
+
   // Calculate net calories (consumed - burned) and determine if it's within goal
-  const netCalories = todayCaloriesConsumed - (todayCaloriesBurned || 0);
+  const netCalories =
+    settings.dailyCalorieGoal +
+    (todayCaloriesBurned || 0) -
+    todayCaloriesConsumed;
   const isNetWithinGoal = netCalories <= settings.dailyCalorieGoal;
   const isBurnedGood = (todayCaloriesBurned || 0) > 200; // Good if burned more than 200 calories
 
@@ -77,7 +86,7 @@ export default function TodayScreen() {
             }
           />
           <StatCard
-            title="Net"
+            title="Remaining"
             value={netCalories}
             iconName={netCalories >= 0 ? "plus.circle" : "minus.circle"}
             color={
@@ -95,7 +104,11 @@ export default function TodayScreen() {
         />
 
         {/* Today's Entries */}
-        <EntriesList entries={todayEntries} onViewAll={handleViewAllEntries} />
+        <EntriesList
+          entries={todayEntries}
+          onViewAll={handleViewAllEntries}
+          onNavigateToAdd={handleNavigateToAdd}
+        />
       </ScrollView>
     </ThemedView>
   );

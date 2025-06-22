@@ -79,7 +79,7 @@ export function SearchResults({
                 </ThemedText>
                 <ThemedText
                   type="default"
-                  style={[styles.foodCalories, { color: colors.healthOrange }]}
+                  style={[styles.foodCalories, { color: colors.textSecondary }]}
                 >
                   {food.caloriesPerServing} cal
                 </ThemedText>

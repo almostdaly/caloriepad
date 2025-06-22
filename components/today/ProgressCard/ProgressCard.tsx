@@ -32,74 +32,73 @@ export function ProgressCard({
         },
       ]}
     >
-      <View style={styles.header}>
-        <IconSymbol
-          name="target"
-          size={20}
-          color={isOverGoal ? colors.healthRed : colors.healthGreen}
-        />
+      {/* Header Row */}
+      <View style={styles.headerRow}>
+        <View style={styles.titleContainer}>
+          <IconSymbol
+            name="target"
+            size={18}
+            color={isOverGoal ? colors.healthRed : colors.healthGreen}
+          />
+          <ThemedText
+            type="defaultSemiBold"
+            style={[styles.title, { color: colors.text }]}
+          >
+            Daily Calories
+          </ThemedText>
+        </View>
         <ThemedText
-          type="defaultSemiBold"
-          style={[styles.title, { color: colors.text }]}
+          type="default"
+          style={[styles.goalText, { color: colors.textSecondary }]}
         >
-          Daily Goal Progress
+          {dailyGoal} target
         </ThemedText>
       </View>
 
+      {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View
           style={[
             styles.progressTrack,
-            { backgroundColor: colors.backgroundSecondary },
+            { backgroundColor: colors.backgroundTertiary },
           ]}
         >
           <View
             style={[
               styles.progressFill,
               {
-                width: `${progress}%`,
+                width: progress > 0 ? `${progress}%` : "2%",
                 backgroundColor: isOverGoal
                   ? colors.healthRed
                   : colors.healthGreen,
+                opacity: progress > 0 ? 1 : 0.3,
               },
             ]}
           />
         </View>
       </View>
 
-      <View style={styles.stats}>
-        <View style={styles.statItem}>
-          <ThemedText
-            type="title"
-            style={[
-              styles.statValue,
-              { color: isOverGoal ? colors.healthRed : colors.healthGreen },
-            ]}
-          >
-            {Math.round(progress)}%
-          </ThemedText>
-          <ThemedText
-            type="default"
-            style={[styles.statLabel, { color: colors.textSecondary }]}
-          >
-            of goal
-          </ThemedText>
-        </View>
-
-        <View style={styles.statItem}>
-          <ThemedText
-            type="defaultSemiBold"
-            style={[styles.statValue, { color: colors.text }]}
-          >
-            {remaining}
-          </ThemedText>
-          <ThemedText
-            type="default"
-            style={[styles.statLabel, { color: colors.textSecondary }]}
-          >
-            {isOverGoal ? "over goal" : "remaining"}
-          </ThemedText>
-        </View>
+      {/* Bottom Row */}
+      <View style={styles.bottomRow}>
+        <ThemedText
+          type="default"
+          style={[styles.progressText, { color: colors.textSecondary }]}
+        >
+          {Math.round(progress)}% used
+        </ThemedText>
+        <ThemedText
+          type="default"
+          style={[
+            styles.remainingText,
+            {
+              color: isOverGoal ? colors.healthRed : colors.healthGreen,
+            },
+          ]}
+        >
+          {isOverGoal
+            ? `${caloriesConsumed - dailyGoal} over`
+            : `${remaining} remaining`}
+        </ThemedText>
       </View>
     </ThemedView>
   );
@@ -109,21 +108,31 @@ const styles = StyleSheet.create({
   card: {
     margin: 20,
     marginBottom: 16,
-    padding: 20,
+    padding: 16,
     borderRadius: 12,
     borderWidth: 0.5,
   },
-  header: {
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  titleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
     gap: 8,
   },
   title: {
     fontSize: 16,
   },
+  goalText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
   progressContainer: {
-    marginBottom: 16,
+    marginBottom: 12,
+    marginTop: 12,
   },
   progressTrack: {
     height: 8,
@@ -134,19 +143,18 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: 4,
   },
-  stats: {
+  bottomRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  statItem: {
+    justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 6,
   },
-  statValue: {
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 2,
+  progressText: {
+    fontSize: 14,
+    fontWeight: "500",
   },
-  statLabel: {
-    fontSize: 12,
+  remainingText: {
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

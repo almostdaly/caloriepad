@@ -16,9 +16,9 @@ export const Colors = {
     textTertiary: "#999999",
 
     // Background colors
-    background: "#FFFFFF",
+    background: "#F2F2F7",
     backgroundSecondary: "#F2F2F7",
-    backgroundTertiary: "#FFFFFF",
+    backgroundTertiary: "#E5E5EA",
 
     // Health colors
     healthGreen,
