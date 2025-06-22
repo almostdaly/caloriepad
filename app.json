@@ -9,7 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "CaloriePad uses your health data to calculate calories burned and provide personalized insights for your daily calorie tracking.",
+        "NSHealthUpdateUsageDescription": "CaloriePad can write workout data to Apple Health to keep your fitness information synchronized."
+      },
+      "entitlements": {
+        "com.apple.developer.healthkit": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -33,10 +40,24 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "CaloriePad uses your health data to calculate calories burned and provide personalized insights for your daily calorie tracking.",
+          "NSHealthUpdateUsageDescription": "CaloriePad can write workout data to Apple Health to keep your fitness information synchronized."
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ba563282-b232-486f-bb88-06aa6d49b0d7"
+      }
+    },
+    "owner": "almostdaly"
   }
 }

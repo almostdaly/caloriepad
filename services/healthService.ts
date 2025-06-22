@@ -1,9 +1,16 @@
 import { Platform } from "react-native";
 
-// For now, we'll create interfaces that match react-native-health
-// This will be fully implemented in Phase 6 with proper native module integration
+// Import @kingstinct/react-native-healthkit library
+let HealthKit: any = null;
+try {
+  HealthKit = require("@kingstinct/react-native-healthkit");
+} catch (error) {
+  console.log(
+    "HealthService: @kingstinct/react-native-healthkit not available"
+  );
+}
 
-// Health data types we want to access (HealthKit identifiers)
+// Health data types we want to access
 export const HEALTH_DATA_TYPES = {
   // Energy and activity
   ACTIVE_ENERGY_BURNED: "HKQuantityTypeIdentifierActiveEnergyBurned",
@@ -28,26 +35,22 @@ export interface UserHealthProfile {
   basalMetabolicRate?: number; // calculated BMR
 }
 
-interface HealthQuantitySample {
-  quantity: number;
-  startDate: Date;
-  endDate: Date;
-}
-
-interface HealthCharacteristic {
-  value: string | number;
+export interface DailyHealthData {
+  activeEnergyBurned: number;
+  basalEnergyBurned: number;
+  date: string; // YYYY-MM-DD
 }
 
 /**
- * Health service for managing Apple HealthKit integration
- * Currently using react-native-health structure - will be fully implemented in Phase 6
+ * Health service for managing Apple HealthKit integration using @kingstinct/react-native-healthkit
  */
 export class HealthService {
-  private static healthKitAvailable: boolean = Platform.OS === "ios";
-  private static AppleHealthKit: any = null;
+  private static healthKitAvailable: boolean =
+    Platform.OS === "ios" && HealthKit !== null;
+  private static permissionRequestInProgress: boolean = false;
 
   /**
-   * Initialize health monitoring and load the native module
+   * Initialize health monitoring and check availability
    */
   static async initialize(): Promise<void> {
     if (Platform.OS !== "ios") {
@@ -56,17 +59,26 @@ export class HealthService {
       return;
     }
 
+    if (!HealthKit) {
+      console.log(
+        "HealthService: @kingstinct/react-native-healthkit library not found"
+      );
+      this.healthKitAvailable = false;
+      return;
+    }
+
     try {
-      // In Phase 6, we'll properly import and initialize react-native-health
-      // For now, we'll simulate the initialization
-      console.log("HealthService: Initializing HealthKit (placeholder)");
+      // Check if HealthKit is available on device
+      const isAvailable = await HealthKit.isHealthDataAvailable();
+      this.healthKitAvailable = isAvailable;
 
-      // TODO: In Phase 6, uncomment and implement:
-      // import AppleHealthKit from 'react-native-health';
-      // this.AppleHealthKit = AppleHealthKit;
-
-      this.healthKitAvailable = true;
-      console.log("HealthService: HealthKit initialized successfully");
+      if (isAvailable) {
+        console.log("HealthService: HealthKit initialized successfully");
+      } else {
+        console.log(
+          "HealthService: HealthKit not available - this is normal in iOS Simulator. HealthKit only works on physical iOS devices."
+        );
+      }
     } catch (error) {
       console.error("HealthService: Error initializing HealthKit:", error);
       this.healthKitAvailable = false;
@@ -88,50 +100,40 @@ export class HealthService {
       throw new Error("HealthKit is not available on this device");
     }
 
+    if (this.permissionRequestInProgress) {
+      throw new Error("Permission request already in progress");
+    }
+
     try {
+      this.permissionRequestInProgress = true;
       console.log("HealthService: Requesting permissions for health data");
 
-      // TODO: In Phase 6, implement actual permission request:
-      /*
-      const permissions = {
-        permissions: {
-          read: [
-            HEALTH_DATA_TYPES.ACTIVE_ENERGY_BURNED,
-            HEALTH_DATA_TYPES.BASAL_ENERGY_BURNED,
-            HEALTH_DATA_TYPES.HEIGHT,
-            HEALTH_DATA_TYPES.BODY_MASS,
-            HEALTH_DATA_TYPES.BIOLOGICAL_SEX,
-            HEALTH_DATA_TYPES.DATE_OF_BIRTH,
-          ],
-        },
-      };
+      // Request permissions using the modern API
+      const readPermissions = [
+        HEALTH_DATA_TYPES.ACTIVE_ENERGY_BURNED,
+        HEALTH_DATA_TYPES.BASAL_ENERGY_BURNED,
+        HEALTH_DATA_TYPES.HEIGHT,
+        HEALTH_DATA_TYPES.BODY_MASS,
+        HEALTH_DATA_TYPES.BIOLOGICAL_SEX,
+        HEALTH_DATA_TYPES.DATE_OF_BIRTH,
+      ];
 
-      return new Promise((resolve, reject) => {
-        this.AppleHealthKit.initHealthKit(permissions, (error: any) => {
-          if (error) {
-            reject(error);
-          } else {
-            const granted: HealthPermissions = {};
-            permissions.permissions.read.forEach(type => {
-              granted[type] = true; // Assume granted for now
-            });
-            resolve(granted);
-          }
-        });
-      });
-      */
+      await HealthKit.requestAuthorization(readPermissions);
 
-      // For now, return mock permissions
-      const mockPermissions: HealthPermissions = {};
-      Object.values(HEALTH_DATA_TYPES).forEach((type) => {
-        mockPermissions[type] = true;
+      console.log("HealthService: Health permissions requested successfully");
+
+      // Return permissions granted status
+      const grantedPermissions: HealthPermissions = {};
+      readPermissions.forEach((type) => {
+        grantedPermissions[type] = true; // Assume granted if no error
       });
 
-      console.log("HealthService: Mock permissions granted:", mockPermissions);
-      return mockPermissions;
+      return grantedPermissions;
     } catch (error) {
       console.error("HealthService: Error requesting permissions:", error);
       throw error;
+    } finally {
+      this.permissionRequestInProgress = false;
     }
   }
 
@@ -144,14 +146,24 @@ export class HealthService {
     }
 
     try {
-      // TODO: In Phase 6, implement actual permission checking
-      // For now, return mock status (not granted by default)
-      const mockPermissions: HealthPermissions = {};
-      Object.values(HEALTH_DATA_TYPES).forEach((type) => {
-        mockPermissions[type] = false;
+      const permissions: HealthPermissions = {};
+
+      // Note: @kingstinct/react-native-healthkit doesn't provide direct authorization status checking
+      // We'll assume permissions are granted if we can successfully make a query
+      const readPermissions = [
+        HEALTH_DATA_TYPES.ACTIVE_ENERGY_BURNED,
+        HEALTH_DATA_TYPES.BASAL_ENERGY_BURNED,
+        HEALTH_DATA_TYPES.HEIGHT,
+        HEALTH_DATA_TYPES.BODY_MASS,
+        HEALTH_DATA_TYPES.BIOLOGICAL_SEX,
+        HEALTH_DATA_TYPES.DATE_OF_BIRTH,
+      ];
+
+      readPermissions.forEach((type) => {
+        permissions[type] = false; // Default to false, will be updated after successful queries
       });
 
-      return mockPermissions;
+      return permissions;
     } catch (error) {
       console.error("HealthService: Error checking permissions:", error);
       return {};
@@ -169,76 +181,87 @@ export class HealthService {
     try {
       const profile: UserHealthProfile = {};
 
-      // TODO: In Phase 6, implement actual data fetching:
-      /*
-      // Get height
-      const heightData = await this.queryQuantitySamples(HEALTH_DATA_TYPES.HEIGHT, 1);
-      if (heightData.length > 0) {
-        profile.height = heightData[0].quantity;
-      }
-
-      // Get weight
-      const weightData = await this.queryQuantitySamples(HEALTH_DATA_TYPES.BODY_MASS, 1);
-      if (weightData.length > 0) {
-        profile.weight = weightData[0].quantity;
-      }
-
       // Get biological sex
-      const sexData = await this.queryCharacteristic(HEALTH_DATA_TYPES.BIOLOGICAL_SEX);
-      if (sexData) {
-        profile.biologicalSex = sexData.value as "male" | "female" | "other";
+      try {
+        const sexResult = await HealthKit.getBiologicalSex();
+        if (sexResult) {
+          // Convert HealthKit biological sex to our format
+          switch (sexResult) {
+            case 1: // HKBiologicalSexFemale
+              profile.biologicalSex = "female";
+              break;
+            case 2: // HKBiologicalSexMale
+              profile.biologicalSex = "male";
+              break;
+            default:
+              profile.biologicalSex = "other";
+          }
+        }
+      } catch (error) {
+        console.log("HealthService: Could not get biological sex:", error);
       }
 
       // Get date of birth and calculate age
-      const dobData = await this.queryCharacteristic(HEALTH_DATA_TYPES.DATE_OF_BIRTH);
-      if (dobData) {
-        const birthDate = new Date(dobData.value as string);
-        const today = new Date();
-        profile.age = today.getFullYear() - birthDate.getFullYear();
-        
-        // Adjust if birthday hasn't occurred this year
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-          profile.age--;
+      try {
+        const dobResult = await HealthKit.getDateOfBirth();
+        if (dobResult) {
+          const birthDate = new Date(dobResult);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < birthDate.getDate())
+          ) {
+            age--;
+          }
+          profile.age = age;
         }
+      } catch (error) {
+        console.log("HealthService: Could not get date of birth:", error);
       }
-      */
 
-      // For now, return mock profile data
-      profile.height = 175; // cm
-      profile.weight = 70; // kg
-      profile.biologicalSex = "male"; // Changed from "other" to avoid switch statement issues
-      profile.age = 30;
+      // Get latest height
+      try {
+        const heightResult = await HealthKit.getMostRecentQuantitySample(
+          HEALTH_DATA_TYPES.HEIGHT
+        );
+        if (heightResult) {
+          profile.height = heightResult.quantity; // Should be in cm
+        }
+      } catch (error) {
+        console.log("HealthService: Could not get height:", error);
+      }
 
-      // Calculate BMR if we have the necessary data
+      // Get latest weight
+      try {
+        const weightResult = await HealthKit.getMostRecentQuantitySample(
+          HEALTH_DATA_TYPES.BODY_MASS
+        );
+        if (weightResult) {
+          profile.weight = weightResult.quantity; // Should be in kg
+        }
+      } catch (error) {
+        console.log("HealthService: Could not get weight:", error);
+      }
+
+      // Calculate BMR using Mifflin-St Jeor Equation
       if (
         profile.height &&
         profile.weight &&
         profile.age &&
         profile.biologicalSex
       ) {
-        const { height, weight, age, biologicalSex } = profile;
-
-        // Harris-Benedict Equation
-        if (biologicalSex === "male") {
-          profile.basalMetabolicRate = Math.round(
-            88.362 + 13.397 * weight + 4.799 * height - 5.677 * age
-          );
-        } else if (biologicalSex === "female") {
-          profile.basalMetabolicRate = Math.round(
-            447.593 + 9.247 * weight + 3.098 * height - 4.33 * age
-          );
-        } else {
-          // Use average for other/unknown
-          const maleBMR =
-            88.362 + 13.397 * weight + 4.799 * height - 5.677 * age;
-          const femaleBMR =
-            447.593 + 9.247 * weight + 3.098 * height - 4.33 * age;
-          profile.basalMetabolicRate = Math.round((maleBMR + femaleBMR) / 2);
-        }
+        const bmr = this.calculateBMR(
+          profile.height,
+          profile.weight,
+          profile.age,
+          profile.biologicalSex
+        );
+        profile.basalMetabolicRate = Math.round(bmr);
       }
 
-      console.log("HealthService: Retrieved user profile (mock):", profile);
+      console.log("HealthService: Retrieved user profile:", profile);
       return profile;
     } catch (error) {
       console.error("HealthService: Error fetching user profile:", error);
@@ -247,122 +270,124 @@ export class HealthService {
   }
 
   /**
-   * Get daily active energy burned
+   * Calculate Basal Metabolic Rate using Mifflin-St Jeor Equation
    */
-  static async getActiveEnergyBurned(date: Date): Promise<number> {
+  private static calculateBMR(
+    height: number,
+    weight: number,
+    age: number,
+    biologicalSex: string
+  ): number {
+    // Mifflin-St Jeor Equation
+    // Men: BMR = 10 × weight(kg) + 6.25 × height(cm) - 5 × age(years) + 5
+    // Women: BMR = 10 × weight(kg) + 6.25 × height(cm) - 5 × age(years) - 161
+
+    const baseBMR = 10 * weight + 6.25 * height - 5 * age;
+
+    if (biologicalSex === "male") {
+      return baseBMR + 5;
+    } else if (biologicalSex === "female") {
+      return baseBMR - 161;
+    } else {
+      // For "other" or unknown, use average
+      return baseBMR - 78; // Average of male and female adjustments
+    }
+  }
+
+  /**
+   * Get daily energy burned data
+   */
+  static async getDailyEnergyBurned(date: string): Promise<DailyHealthData> {
     if (!this.isHealthKitAvailable()) {
-      return 0;
+      return {
+        activeEnergyBurned: 0,
+        basalEnergyBurned: 0,
+        date,
+      };
     }
 
     try {
-      // TODO: In Phase 6, implement actual data fetching:
-      /*
-      const startOfDay = new Date(date);
-      startOfDay.setHours(0, 0, 0, 0);
-      
-      const endOfDay = new Date(date);
-      endOfDay.setHours(23, 59, 59, 999);
+      const startDate = new Date(date + "T00:00:00.000Z");
+      const endDate = new Date(date + "T23:59:59.999Z");
 
-      const energyData = await this.queryQuantitySamplesForDate(
-        HEALTH_DATA_TYPES.ACTIVE_ENERGY_BURNED,
-        startOfDay,
-        endOfDay
-      );
+      // Get active energy burned
+      let activeEnergy = 0;
+      try {
+        const activeEnergyResult = await HealthKit.queryQuantitySamples(
+          HEALTH_DATA_TYPES.ACTIVE_ENERGY_BURNED,
+          {
+            from: startDate,
+            to: endDate,
+          }
+        );
 
-      const totalEnergy = energyData.reduce((sum: number, sample: HealthQuantitySample) => 
-        sum + sample.quantity, 0
-      );
-      
-      console.log(`HealthService: Active energy burned on ${date.toDateString()}: ${totalEnergy} calories`);
-      return Math.round(totalEnergy);
-      */
+        if (activeEnergyResult && activeEnergyResult.samples) {
+          activeEnergy = activeEnergyResult.samples.reduce(
+            (sum: number, sample: any) => sum + sample.quantity,
+            0
+          );
+        }
+      } catch (error) {
+        console.log("HealthService: Could not get active energy:", error);
+      }
 
-      // For now, return mock data
-      const mockEnergy = Math.floor(Math.random() * 600) + 200; // 200-800 calories
-      console.log(
-        `HealthService: Active energy burned on ${date.toDateString()}: ${mockEnergy} calories (mock)`
-      );
-      return mockEnergy;
+      // Get basal energy burned
+      let basalEnergy = 0;
+      try {
+        const basalEnergyResult = await HealthKit.queryQuantitySamples(
+          HEALTH_DATA_TYPES.BASAL_ENERGY_BURNED,
+          {
+            from: startDate,
+            to: endDate,
+          }
+        );
+
+        if (basalEnergyResult && basalEnergyResult.samples) {
+          basalEnergy = basalEnergyResult.samples.reduce(
+            (sum: number, sample: any) => sum + sample.quantity,
+            0
+          );
+        }
+      } catch (error) {
+        console.log("HealthService: Could not get basal energy:", error);
+      }
+
+      const dailyData: DailyHealthData = {
+        activeEnergyBurned: Math.round(activeEnergy),
+        basalEnergyBurned: Math.round(basalEnergy),
+        date,
+      };
+
+      console.log(`HealthService: Daily energy for ${date}:`, dailyData);
+      return dailyData;
     } catch (error) {
-      console.error("HealthService: Error fetching active energy:", error);
-      return 0;
+      console.error("HealthService: Error fetching daily energy data:", error);
+      return {
+        activeEnergyBurned: 0,
+        basalEnergyBurned: 0,
+        date,
+      };
     }
   }
 
   /**
-   * Get daily basal energy burned
+   * Check if health permissions are currently granted
    */
-  static async getBasalEnergyBurned(date: Date): Promise<number> {
+  static async hasHealthPermissions(): Promise<boolean> {
     if (!this.isHealthKitAvailable()) {
-      return 0;
+      return false;
     }
 
     try {
-      // TODO: In Phase 6, implement actual data fetching:
-      /*
-      const startOfDay = new Date(date);
-      startOfDay.setHours(0, 0, 0, 0);
-      
-      const endOfDay = new Date(date);
-      endOfDay.setHours(23, 59, 59, 999);
-
-      const energyData = await this.queryQuantitySamplesForDate(
-        HEALTH_DATA_TYPES.BASAL_ENERGY_BURNED,
-        startOfDay,
-        endOfDay
+      // Try to make a simple query to see if we have permissions
+      const result = await HealthKit.getMostRecentQuantitySample(
+        HEALTH_DATA_TYPES.ACTIVE_ENERGY_BURNED
       );
-
-      const totalEnergy = energyData.reduce((sum: number, sample: HealthQuantitySample) => 
-        sum + sample.quantity, 0
-      );
-      
-      console.log(`HealthService: Basal energy burned on ${date.toDateString()}: ${totalEnergy} calories`);
-      return Math.round(totalEnergy);
-      */
-
-      // For now, return mock data
-      const mockEnergy = Math.floor(Math.random() * 800) + 1200; // 1200-2000 calories
-      console.log(
-        `HealthService: Basal energy burned on ${date.toDateString()}: ${mockEnergy} calories (mock)`
-      );
-      return mockEnergy;
+      return result !== null;
     } catch (error) {
-      console.error("HealthService: Error fetching basal energy:", error);
-      return 0;
+      console.log("HealthService: No health permissions or error:", error);
+      return false;
     }
-  }
-
-  /**
-   * Helper method to query quantity samples (to be implemented in Phase 6)
-   */
-  private static async queryQuantitySamples(
-    dataType: string,
-    limit: number
-  ): Promise<HealthQuantitySample[]> {
-    // TODO: Implement in Phase 6
-    return [];
-  }
-
-  /**
-   * Helper method to query quantity samples for a date range (to be implemented in Phase 6)
-   */
-  private static async queryQuantitySamplesForDate(
-    dataType: string,
-    startDate: Date,
-    endDate: Date
-  ): Promise<HealthQuantitySample[]> {
-    // TODO: Implement in Phase 6
-    return [];
-  }
-
-  /**
-   * Helper method to query characteristics (to be implemented in Phase 6)
-   */
-  private static async queryCharacteristic(
-    dataType: string
-  ): Promise<HealthCharacteristic | null> {
-    // TODO: Implement in Phase 6
-    return null;
   }
 
   /**

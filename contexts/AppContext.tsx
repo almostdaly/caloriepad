@@ -6,6 +6,7 @@ import React, {
   useReducer,
 } from "react";
 import { FoodService } from "../services/foodService";
+import { HealthService } from "../services/healthService";
 import { StorageService } from "../services/storage";
 import {
   DayData,
@@ -180,6 +181,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
         // Initialize food database
         await FoodService.initializeFoodDatabase();
+
+        // Initialize health service
+        await HealthService.initialize();
 
         // Load today's entries
         const todayEntries = await StorageService.getDayEntries(

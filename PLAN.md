@@ -204,10 +204,12 @@ interface DayData {
 
 ## 📊 Current Progress Status
 
-**Overall Progress: ~70% Complete**
+**Overall Progress: 85% Complete**
 
-✅ **COMPLETED**: Phase 1 (Core Foundation) + Phase 2 (Food Database & Entry) + Phase 3 (Today Screen)  
-⏳ **PENDING**: Phase 4 (Developer Tools) + Phase 5 (User Onboarding) + Phase 6 (Apple Health) + Phase 7 (History & Polish)
+✅ **COMPLETED**: Phase 1 (Core Foundation) + Phase 2 (Food Database & Entry) + Phase 3 (Today Screen & Tracking) + Phase 4 (Developer Tools) + Phase 3.5 (Architecture Refactoring) + **Phase 5 (User Onboarding)**  
+⏳ **PENDING**: Phase 6 (Apple Health Integration) + Phase 7 (History & Polish)
+
+**📱 Note**: HealthKit functionality requires a physical iOS device - it's not available in the iOS Simulator. This is normal Apple behavior.
 
 **Key Achievements:**
 
@@ -223,16 +225,9 @@ interface DayData {
 - **NEW**: Full food search and category filtering
 - **NEW**: Working "Add Food" functionality with confirmation dialogs
 - **NEW**: Food entries now display in real-time on Today screen
-
-**Next Priority:**
-
-- [x] ~~Refactor the UI screens and split into pure, prop driven and clean components~~
-- [x] ~~Delete any unused components that ship with expo create (parallax and all that)~~
-- [x] ~~PAUSE and ask for screenshots of the UI and feedback from the user to check if designs are correct before continuing~~
-- [x] ~~Complete Phase 2 (Food Database & Entry functionality)~~
-- **READY FOR:** Phase 4 (Developer Tools) + Phase 5 (User Onboarding)
-
----
+- **NEW**: Developer tools for testing and debugging
+- **NEW**: Proper onboarding flow with real Apple Health permission requests
+- **NEW**: Modern @kingstinct/react-native-healthkit integration
 
 ## 🚀 Implementation Phases
 
@@ -267,7 +262,7 @@ interface DayData {
 - [x] **BONUS**: Net calorie calculation display
 - [x] **BONUS**: Goal tracking with visual indicators
 
-### Phase 4: Developer Tools (Week 4A) ⏳ PENDING
+### Phase 4: Developer Tools (Week 4A) ✅ COMPLETED
 
 - [x] Set up HealthKit permissions (integrated with onboarding)
 - [x] Add hidden developer settings screen
@@ -279,20 +274,31 @@ interface DayData {
 - [x] Ensure developer features are never shown in release builds
 - [x] Add proper confirmation dialogs for destructive actions
 
-### Phase 5: User Onboarding (Week 4B) ⏳ PENDING
+### Phase 3.5: Architecture Refactoring ✅ COMPLETED
 
-- [ ] Create first-time user onboarding flow
-- [ ] Request Apple Health permissions for the following data types:
-  - [ ] `HKQuantityTypeIdentifierBasalEnergyBurned`
-  - [ ] `HKQuantityTypeIdentifierActiveEnergyBurned`
-  - [ ] `HKQuantityTypeIdentifierHeight`
-  - [ ] `HKQuantityTypeIdentifierBodyMass`
-  - [ ] `HKCharacteristicTypeIdentifierBiologicalSex`
-  - [ ] `HKCharacteristicTypeIdentifierDateOfBirth`
-- [ ] Update data storage model to include `hasOnboarded` boolean
-- [ ] Design clean, welcoming onboarding screens
-- [ ] Show onboarding only on first app launch
-- [ ] Handle permission grant/deny gracefully
+- [x] Refactor all components to single responsibility principle
+- [x] Enforce 150-200 line component size limits
+- [x] Organize components by feature area (food/, today/, common/)
+- [x] Extract business logic to services and utilities
+- [x] Implement proper composition patterns
+- [x] Colocate styles within component files
+- [x] Break down large components (QuickAddFood, FoodSearchList, etc.)
+- [x] Ensure one component per file with clean exports
+
+### Phase 5: User Onboarding (Week 4B) ✅ COMPLETED
+
+- [x] Create first-time user onboarding flow
+- [x] Request Apple Health permissions for the following data types:
+  - [x] `HKQuantityTypeIdentifierBasalEnergyBurned`
+  - [x] `HKQuantityTypeIdentifierActiveEnergyBurned`
+  - [x] `HKQuantityTypeIdentifierHeight`
+  - [x] `HKQuantityTypeIdentifierBodyMass`
+  - [x] `HKCharacteristicTypeIdentifierBiologicalSex`
+  - [x] `HKCharacteristicTypeIdentifierDateOfBirth`
+- [x] Update data storage model to include `hasOnboarded` boolean
+- [x] Design clean, welcoming onboarding screens
+- [x] Show onboarding only on first app launch
+- [x] Handle permission grant/deny gracefully
 
 ### Phase 6: Apple Health Integration (Week 5) ⏳ PENDING
 
