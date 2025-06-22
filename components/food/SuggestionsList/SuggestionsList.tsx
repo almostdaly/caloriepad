@@ -7,6 +7,7 @@ import React from "react";
 import { Pressable, ScrollView, StyleSheet } from "react-native";
 
 interface SuggestionsListProps {
+  currentFood: string;
   suggestions: FoodItem[];
   onSelectSuggestion: (food: FoodItem) => void;
   onSelectCustom: () => void;
@@ -14,6 +15,7 @@ interface SuggestionsListProps {
 }
 
 export function SuggestionsList({
+  currentFood,
   suggestions,
   onSelectSuggestion,
   onSelectCustom,
@@ -92,7 +94,7 @@ export function SuggestionsList({
             ]}
           >
             <ThemedText style={[styles.suggestionName, { color: colors.tint }]}>
-              Use custom food
+              Add &quot;{currentFood}&quot; as custom food
             </ThemedText>
           </ThemedView>
         </Pressable>

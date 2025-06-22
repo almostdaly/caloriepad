@@ -6,7 +6,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { StorageService } from "@/services/storage";
 import { FoodEntry, FoodItem } from "@/types";
 import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 
 interface RecentFoodsQuickAddProps {
   onSelectFood: (food: FoodItem) => void;
@@ -68,7 +68,7 @@ export function RecentQuickAdd({
       // Convert to array and sort by timestamp (most recent first)
       const sortedFoods = Array.from(uniqueFoods.values())
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-        .slice(0, 8) // Show max 8 recent foods
+        .slice(0, 3) // Show max 3 recent foods
         .map((item) => item.food);
 
       setRecentFoods(sortedFoods);
@@ -93,49 +93,50 @@ export function RecentQuickAdd({
         </ThemedText>
       </ThemedView>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ThemedView style={[styles.foodList, { backgroundColor: "transparent" }]}>
         {recentFoods.map((food) => (
           <Pressable
             key={food.id}
             style={[
-              styles.foodCard,
+              styles.foodRow,
               {
                 backgroundColor: colors.cardBackground,
-                borderColor: colors.cardBorder,
+                borderColor: colors.separator,
               },
             ]}
             onPress={() => onSelectFood(food)}
           >
             <ThemedView
-              style={[styles.cardContent, { backgroundColor: "transparent" }]}
+              style={[styles.rowContent, { backgroundColor: "transparent" }]}
             >
               <ThemedText
-                type="defaultSemiBold"
                 style={[styles.foodName, { color: colors.text }]}
-                numberOfLines={2}
+                numberOfLines={1}
               >
                 {food.name}
               </ThemedText>
-              <ThemedText
-                type="default"
-                style={[styles.foodCalories, { color: colors.healthOrange }]}
+              <ThemedView
+                style={[
+                  styles.rightContent,
+                  { backgroundColor: "transparent" },
+                ]}
               >
-                {food.caloriesPerServing} cal
-              </ThemedText>
-              <ThemedText
-                type="default"
-                style={[styles.foodServing, { color: colors.textSecondary }]}
-              >
-                {food.servingSize}
-              </ThemedText>
+                <ThemedText
+                  type="default"
+                  style={[styles.foodCalories, { color: colors.text }]}
+                >
+                  {food.caloriesPerServing} cal
+                </ThemedText>
+                <IconSymbol
+                  name="chevron.right"
+                  size={16}
+                  color={colors.textSecondary}
+                />
+              </ThemedView>
             </ThemedView>
           </Pressable>
         ))}
-      </ScrollView>
+      </ThemedView>
     </ThemedView>
   );
 }
@@ -154,31 +155,30 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
   },
-  scrollContent: {
-    paddingRight: 20,
-    gap: 12,
+  foodList: {
+    gap: 8,
   },
-  foodCard: {
-    width: 120,
-    padding: 12,
+  foodRow: {
+    padding: 16,
     borderRadius: 12,
     borderWidth: 0.5,
   },
-  cardContent: {
+  rowContent: {
+    flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    justifyContent: "space-between",
   },
   foodName: {
-    fontSize: 14,
-    textAlign: "center",
-    minHeight: 34, // Ensure consistent height for 2 lines
+    fontSize: 16,
+    flex: 1,
+  },
+  rightContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   foodCalories: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
-  },
-  foodServing: {
-    fontSize: 12,
-    textAlign: "center",
   },
 });

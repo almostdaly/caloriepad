@@ -40,26 +40,31 @@ export function QuickAddFood({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isAcceptedSuggestion, setIsAcceptedSuggestion] = useState(false);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const debouncer = createDebouncer();
 
   const performSearch = useCallback(
     async (query: string) => {
       if (query.trim().length > 2 && !isAcceptedSuggestion) {
+        setIsSearching(true);
         await searchFoodsWithDebounce(
           query,
           (results) => {
             setSearchResults(results);
             setShowSuggestions(results.length > 0);
+            setIsSearching(false);
           },
           () => {
             setSearchResults([]);
             setShowSuggestions(false);
+            setIsSearching(false);
           }
         );
       } else {
         setSearchResults([]);
         setShowSuggestions(false);
+        setIsSearching(false);
       }
     },
     [isAcceptedSuggestion]
@@ -67,8 +72,9 @@ export function QuickAddFood({
 
   useEffect(() => {
     debouncer.debounce(() => performSearch(foodName), 500);
+
     return () => debouncer.clear();
-  }, [foodName, performSearch, debouncer]);
+  }, [foodName, performSearch]);
 
   const handleFoodNameChange = (text: string) => {
     setFoodName(text);
@@ -82,6 +88,7 @@ export function QuickAddFood({
     setIsAcceptedSuggestion(false);
     setShowSuggestions(false);
     setSearchResults([]);
+    setIsSearching(false);
   };
 
   const handleSelectSuggestion = (food: FoodItem) => {
@@ -211,8 +218,10 @@ export function QuickAddFood({
             onChangeText={handleFoodNameChange}
             onClear={handleClearFoodName}
             placeholder="Enter food name..."
+            isLoading={isSearching}
           />
           <SuggestionsList
+            currentFood={foodName}
             suggestions={searchResults}
             onSelectSuggestion={handleSelectSuggestion}
             onSelectCustom={handleSelectCustom}

@@ -3,13 +3,19 @@ import { ThemedView } from "@/components/ui/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import React from "react";
-import { Pressable, StyleSheet, TextInput } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  TextInput,
+} from "react-native";
 
 interface SearchInputProps {
   value: string;
   onChangeText: (text: string) => void;
   onClear: () => void;
   placeholder?: string;
+  isLoading?: boolean;
 }
 
 export function SearchInput({
@@ -17,6 +23,7 @@ export function SearchInput({
   onChangeText,
   onClear,
   placeholder = "Enter food name...",
+  isLoading = false,
 }: SearchInputProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
@@ -40,17 +47,22 @@ export function SearchInput({
         clearButtonMode="never"
       />
       {value.length > 0 && (
-        <Pressable
+        <ThemedView
           style={[
-            styles.clearButton,
+            styles.actionButton,
             {
               backgroundColor: colors.backgroundSecondary,
             },
           ]}
-          onPress={onClear}
         >
-          <IconSymbol name="xmark" size={12} color={colors.icon} />
-        </Pressable>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={colors.tint} />
+          ) : (
+            <Pressable onPress={onClear} style={styles.pressable}>
+              <IconSymbol name="xmark" size={12} color={colors.icon} />
+            </Pressable>
+          )}
+        </ThemedView>
       )}
     </ThemedView>
   );
@@ -66,13 +78,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
   },
-  clearButton: {
+  actionButton: {
     position: "absolute",
     top: 12,
     right: 12,
     width: 20,
     height: 20,
     borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pressable: {
+    width: "100%",
+    height: "100%",
     alignItems: "center",
     justifyContent: "center",
   },
