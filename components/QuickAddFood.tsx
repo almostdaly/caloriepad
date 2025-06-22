@@ -2,7 +2,7 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { FoodService } from "@/services/foodService";
 import { FoodEntry, FoodItem } from "@/types";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -26,40 +26,75 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
   const [quantity, setQuantity] = useState(1);
   const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isAcceptedSuggestion, setIsAcceptedSuggestion] = useState(false);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Simple debounce function
+  const debounceSearch = useCallback(
+    (query: string, delay: number) => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      debounceTimer.current = setTimeout(async () => {
+        if (query.trim().length > 2 && !isAcceptedSuggestion) {
+          try {
+            const results = await FoodService.searchFoods(query);
+            setSearchResults(results.slice(0, 6));
+            setShowSuggestions(results.length > 0);
+          } catch (error) {
+            console.error("Error searching foods:", error);
+            setSearchResults([]);
+            setShowSuggestions(false);
+          }
+        } else {
+          setSearchResults([]);
+          setShowSuggestions(false);
+        }
+      }, delay);
+    },
+    [isAcceptedSuggestion]
+  );
 
   useEffect(() => {
-    const searchFoods = async () => {
-      try {
-        const results = await FoodService.searchFoods(foodName);
-        setSearchResults(results.slice(0, 3)); // Show only top 3 results
-        setShowSuggestions(results.length > 0);
-      } catch (error) {
-        console.error("Error searching foods:", error);
-        setSearchResults([]);
-        setShowSuggestions(false);
-      }
-    };
-
-    if (foodName.trim().length > 1) {
-      searchFoods();
+    if (foodName.trim().length > 2 && !isAcceptedSuggestion) {
+      debounceSearch(foodName, 500); // 500ms delay to reduce API calls
     } else {
       setSearchResults([]);
       setShowSuggestions(false);
     }
-  }, [foodName]);
+
+    // Cleanup timer on unmount
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [foodName, isAcceptedSuggestion, debounceSearch]);
 
   const selectSuggestion = (food: FoodItem) => {
     setFoodName(food.name);
     setCalories(food.caloriesPerServing);
+    setIsAcceptedSuggestion(true); // Mark as accepted to prevent re-search
 
-    // Properly hide suggestions
+    // Hide suggestions immediately
     setShowSuggestions(false);
     setSearchResults([]);
+  };
 
-    // Clear the search state completely
-    setTimeout(() => {
-      setShowSuggestions(false);
-    }, 100);
+  const handleFoodNameChange = (text: string) => {
+    setFoodName(text);
+    // If user is manually typing, reset the accepted suggestion flag
+    if (isAcceptedSuggestion) {
+      setIsAcceptedSuggestion(false);
+    }
+  };
+
+  const clearFoodName = () => {
+    setFoodName("");
+    setIsAcceptedSuggestion(false);
+    setShowSuggestions(false);
+    setSearchResults([]);
   };
 
   const adjustCalories = (amount: number) => {
@@ -79,19 +114,33 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
     }
 
     try {
-      // Check if this is a modified version of an existing food or completely new
+      // Check if this is from search results (USDA or custom)
       const existingFood = searchResults.find(
         (f) => f.name.toLowerCase() === foodName.toLowerCase()
       );
 
       let foodToSave: FoodItem;
 
-      if (existingFood && calories !== existingFood.caloriesPerServing) {
-        // User modified calories of existing food - update the personal database
-        foodToSave = { ...existingFood, caloriesPerServing: calories };
-        await FoodService.updateFood(foodToSave);
-      } else if (!existingFood) {
-        // Completely new food - add to personal database
+      if (existingFood) {
+        if (
+          existingFood.isUSDAFood &&
+          calories !== existingFood.caloriesPerServing
+        ) {
+          // USDA food with adjusted calories - use as one-time override, don't store
+          foodToSave = { ...existingFood, caloriesPerServing: calories };
+        } else if (
+          !existingFood.isUSDAFood &&
+          calories !== existingFood.caloriesPerServing
+        ) {
+          // Custom food with adjusted calories - update it
+          foodToSave = { ...existingFood, caloriesPerServing: calories };
+          await FoodService.updateFood(foodToSave);
+        } else {
+          // Use existing food as-is
+          foodToSave = existingFood;
+        }
+      } else {
+        // Completely new food - add to custom database
         foodToSave = {
           id: `custom-${Date.now()}`,
           name: foodName.trim(),
@@ -100,11 +149,9 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
           category: "food",
           isFavorite: false,
           createdAt: new Date(),
+          isUSDAFood: false,
         };
         await FoodService.addCustomFood(foodToSave);
-      } else {
-        // Using existing food as-is
-        foodToSave = existingFood;
       }
 
       const totalCalories = calories * quantity;
@@ -124,6 +171,7 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
       setQuantity(1);
       setShowSuggestions(false);
       setSearchResults([]);
+      setIsAcceptedSuggestion(false);
 
       onFoodAdded();
 
@@ -170,18 +218,31 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
                 color: colors.text,
                 backgroundColor: colors.backgroundSecondary,
                 borderColor: colors.separator,
+                paddingRight: foodName.trim() ? 40 : 12, // Make space for X button
               },
             ]}
             placeholder="Food name (start typing to search)..."
             placeholderTextColor={colors.icon}
             value={foodName}
-            onChangeText={setFoodName}
+            onChangeText={handleFoodNameChange}
             returnKeyType="done"
             onBlur={() => {
               // Hide suggestions when input loses focus
               setTimeout(() => setShowSuggestions(false), 200);
             }}
           />
+
+          {foodName.trim() && (
+            <Pressable
+              style={[
+                styles.clearButton,
+                { backgroundColor: colors.icon + "20" },
+              ]}
+              onPress={clearFoodName}
+            >
+              <IconSymbol name="xmark" size={12} color={colors.icon} />
+            </Pressable>
+          )}
 
           {showSuggestions && (
             <ThemedView
@@ -211,16 +272,29 @@ export function QuickAddFood({ onFoodAdded, addFoodEntry }: QuickAddFoodProps) {
                     ]}
                     onPress={() => selectSuggestion(food)}
                   >
-                    <ThemedText type="default">{food.name}</ThemedText>
-                    <ThemedText
-                      type="default"
+                    <ThemedView
                       style={[
-                        styles.suggestionCalories,
-                        { color: colors.tint },
+                        styles.suggestionContent,
+                        { backgroundColor: "transparent" },
                       ]}
                     >
-                      {food.caloriesPerServing} cal
-                    </ThemedText>
+                      <ThemedText
+                        type="default"
+                        style={styles.suggestionName}
+                        numberOfLines={2}
+                      >
+                        {food.name}
+                      </ThemedText>
+                      <ThemedText
+                        type="default"
+                        style={[
+                          styles.suggestionCalories,
+                          { color: colors.tint },
+                        ]}
+                      >
+                        {food.caloriesPerServing} cal
+                      </ThemedText>
+                    </ThemedView>
                   </Pressable>
                 ))}
               </ScrollView>
@@ -433,7 +507,7 @@ const styles = StyleSheet.create({
     top: "100%",
     left: 0,
     right: 0,
-    maxHeight: 120,
+    maxHeight: 180,
     borderWidth: 1,
     borderTopWidth: 0,
     borderBottomLeftRadius: 8,
@@ -446,14 +520,30 @@ const styles = StyleSheet.create({
   suggestion: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderBottomWidth: 0.5,
+    minHeight: 50,
+  },
+  suggestionContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    flex: 1,
+    gap: 8,
+  },
+  suggestionName: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "500",
+    lineHeight: 18,
   },
   suggestionCalories: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
+    minWidth: 45,
+    textAlign: "right",
   },
   panelsContainer: {
     flexDirection: "row",
@@ -521,5 +611,15 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: "white",
     fontSize: 16,
+  },
+  clearButton: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

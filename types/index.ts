@@ -6,6 +6,7 @@ export interface FoodItem {
   category: "food" | "drink" | "snack";
   isFavorite: boolean;
   createdAt: Date;
+  isUSDAFood?: boolean; // Flag to identify foods from USDA API
 }
 
 export interface FoodEntry {
