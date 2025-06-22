@@ -154,9 +154,10 @@ export default function DeveloperScreen() {
       style={({ pressed }) => [
         styles.row,
         {
-          backgroundColor: pressed ? colors.backgroundSecondary : "transparent",
+          backgroundColor: pressed
+            ? colors.backgroundSecondary
+            : colors.cardBackground,
         },
-        !isLast && styles.rowWithBorder,
       ]}
       onPress={onPress}
       disabled={rowLoading}
@@ -320,13 +321,10 @@ const styles = StyleSheet.create({
   sectionContent: {
     borderRadius: 10,
     marginHorizontal: 16,
+    overflow: "hidden",
   },
   row: {
     minHeight: 44,
-  },
-  rowWithBorder: {
-    borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(60, 60, 67, 0.29)",
   },
   rowContent: {
     flexDirection: "row",
@@ -346,13 +344,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "400",
     lineHeight: 20,
-    marginTop: 1,
+    marginTop: 2,
   },
   rowAccessory: {
     marginLeft: 16,
   },
   separator: {
-    height: 0.5,
+    height: StyleSheet.hairlineWidth,
     marginLeft: 16,
   },
 });

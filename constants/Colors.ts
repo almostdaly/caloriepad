@@ -50,8 +50,8 @@ export const Colors = {
   dark: {
     // Text colors
     text: "#FFFFFF",
-    textSecondary: "#EBEBF5",
-    textTertiary: "#EBEBF5",
+    textSecondary: "#BCBCC4",
+    textTertiary: "#BCBCC4",
 
     // Background colors
     background: "#000000",
