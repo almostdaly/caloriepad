@@ -33,6 +33,13 @@ export interface UserSettings {
   theme: "light" | "dark" | "system";
 }
 
+export interface UserOnboardingStatus {
+  hasOnboarded: boolean;
+  healthPermissionsRequested: boolean;
+  healthPermissionsGranted: boolean;
+  onboardingCompletedAt?: Date;
+}
+
 export interface HealthData {
   activeEnergyBurned: number;
   basalEnergyBurned?: number;
@@ -45,4 +52,5 @@ export const STORAGE_KEYS = {
   FAVORITES: "@caloriepad/favorites",
   USER_SETTINGS: "@caloriepad/settings",
   HEALTH_CACHE: "@caloriepad/health_cache",
+  ONBOARDING_STATUS: "@caloriepad/onboarding_status",
 } as const;

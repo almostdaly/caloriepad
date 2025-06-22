@@ -4,6 +4,7 @@ import {
   FoodItem,
   HealthData,
   STORAGE_KEYS,
+  UserOnboardingStatus,
   UserSettings,
 } from "../types";
 
@@ -114,6 +115,39 @@ export class StorageService {
     }
   }
 
+  // Onboarding status
+  static async getOnboardingStatus(): Promise<UserOnboardingStatus> {
+    try {
+      const data = await AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING_STATUS);
+      const defaultStatus: UserOnboardingStatus = {
+        hasOnboarded: false,
+        healthPermissionsRequested: false,
+        healthPermissionsGranted: false,
+      };
+      return data ? { ...defaultStatus, ...JSON.parse(data) } : defaultStatus;
+    } catch (error) {
+      console.error("Error getting onboarding status:", error);
+      return {
+        hasOnboarded: false,
+        healthPermissionsRequested: false,
+        healthPermissionsGranted: false,
+      };
+    }
+  }
+
+  static async saveOnboardingStatus(
+    status: UserOnboardingStatus
+  ): Promise<void> {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.ONBOARDING_STATUS,
+        JSON.stringify(status)
+      );
+    } catch (error) {
+      console.error("Error saving onboarding status:", error);
+    }
+  }
+
   // Health data cache
   static async getHealthData(): Promise<HealthData | null> {
     try {
@@ -162,6 +196,107 @@ export class StorageService {
       );
     } catch (error) {
       console.error("Error saving food database:", error);
+    }
+  }
+
+  // ============================================================================
+  // DEVELOPER TOOLS - Only accessible in development mode
+  // ============================================================================
+
+  /**
+   * Reset today's food entries only
+   */
+  static async resetTodayLog(): Promise<void> {
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      await AsyncStorage.removeItem(`${STORAGE_KEYS.DAILY_ENTRIES}${today}`);
+      console.log("Today's log reset successfully");
+    } catch (error) {
+      console.error("Error resetting today's log:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reset custom food database (keeps built-in foods)
+   */
+  static async resetCustomFoodData(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.FOOD_DATABASE);
+      await AsyncStorage.removeItem(STORAGE_KEYS.FAVORITES);
+      console.log("Custom food data reset successfully");
+    } catch (error) {
+      console.error("Error resetting custom food data:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Factory reset - clears all app data and forces re-onboarding
+   * This will require health permissions to be re-requested
+   */
+  static async factoryReset(): Promise<void> {
+    try {
+      await AsyncStorage.clear();
+
+      // Also trigger health permission reset
+      const { HealthService } = await import("./healthService");
+      await HealthService.resetPermissions();
+
+      console.log(
+        "Factory reset completed - all data cleared and health permissions reset"
+      );
+    } catch (error) {
+      console.error("Error performing factory reset:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get storage statistics for developer debugging
+   */
+  static async getStorageStats(): Promise<{
+    totalKeys: number;
+    approximateSize: number;
+    keysByCategory: Record<string, number>;
+  }> {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      let totalSize = 0;
+      const keysByCategory: Record<string, number> = {};
+
+      for (const key of keys) {
+        const value = await AsyncStorage.getItem(key);
+        if (value) {
+          totalSize += value.length;
+        }
+
+        // Categorize keys
+        if (key.includes("entries_")) {
+          keysByCategory.entries = (keysByCategory.entries || 0) + 1;
+        } else if (key.includes("food_database")) {
+          keysByCategory.foodDatabase = (keysByCategory.foodDatabase || 0) + 1;
+        } else if (key.includes("settings")) {
+          keysByCategory.settings = (keysByCategory.settings || 0) + 1;
+        } else if (key.includes("health")) {
+          keysByCategory.health = (keysByCategory.health || 0) + 1;
+        } else {
+          keysByCategory.other = (keysByCategory.other || 0) + 1;
+        }
+      }
+
+      return {
+        totalKeys: keys.length,
+        approximateSize: totalSize,
+        keysByCategory,
+      };
+    } catch (error) {
+      console.error("Error getting storage stats:", error);
+      return {
+        totalKeys: 0,
+        approximateSize: 0,
+        keysByCategory: {},
+      };
     }
   }
 

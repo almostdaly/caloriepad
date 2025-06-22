@@ -175,10 +175,10 @@ interface DayData {
 
 ## 📊 Current Progress Status
 
-**Overall Progress: ~85% Complete**
+**Overall Progress: ~70% Complete**
 
 ✅ **COMPLETED**: Phase 1 (Core Foundation) + Phase 2 (Food Database & Entry) + Phase 3 (Today Screen)  
-⏳ **PENDING**: Phase 4 (Apple Health) + Phase 5 (Polish)
+⏳ **PENDING**: Phase 4 (Developer Tools) + Phase 5 (User Onboarding) + Phase 6 (Apple Health) + Phase 7 (History & Polish)
 
 **Key Achievements:**
 
@@ -201,7 +201,7 @@ interface DayData {
 - [x] ~~Delete any unused components that ship with expo create (parallax and all that)~~
 - [x] ~~PAUSE and ask for screenshots of the UI and feedback from the user to check if designs are correct before continuing~~
 - [x] ~~Complete Phase 2 (Food Database & Entry functionality)~~
-- **READY FOR:** Phase 4 (Apple Health Integration) or Phase 5 (History & Polish)
+- **READY FOR:** Phase 4 (Developer Tools) + Phase 5 (User Onboarding)
 
 ---
 
@@ -238,15 +238,42 @@ interface DayData {
 - [x] **BONUS**: Net calorie calculation display
 - [x] **BONUS**: Goal tracking with visual indicators
 
-### Phase 4: Apple Health Integration (Week 4) ⏳ PENDING
+### Phase 4: Developer Tools (Week 4A) ⏳ PENDING
 
-- [ ] Set up HealthKit permissions
+- [ ] Set up HealthKit permissions (integrated with onboarding)
+- [ ] Add hidden developer settings screen
+- [ ] Accessible from settings page via pressable (development mode only)
+- [ ] Create new "Developer Mode" screen with the following features:
+  - [ ] Reset today's log functionality
+  - [ ] Reset custom food data functionality
+  - [ ] Reset all data (factory reset) functionality - needs to re ask for permissions from health
+- [ ] Ensure developer features are never shown in release builds
+- [ ] Add proper confirmation dialogs for destructive actions
+
+### Phase 5: User Onboarding (Week 4B) ⏳ PENDING
+
+- [ ] Create first-time user onboarding flow
+- [ ] Request Apple Health permissions for the following data types:
+  - [ ] `HKQuantityTypeIdentifierBasalEnergyBurned`
+  - [ ] `HKQuantityTypeIdentifierActiveEnergyBurned`
+  - [ ] `HKQuantityTypeIdentifierHeight`
+  - [ ] `HKQuantityTypeIdentifierBodyMass`
+  - [ ] `HKCharacteristicTypeIdentifierBiologicalSex`
+  - [ ] `HKCharacteristicTypeIdentifierDateOfBirth`
+- [ ] Update data storage model to include `hasOnboarded` boolean
+- [ ] Design clean, welcoming onboarding screens
+- [ ] Show onboarding only on first app launch
+- [ ] Handle permission grant/deny gracefully
+
+### Phase 6: Apple Health Integration (Week 5) ⏳ PENDING
+
 - [ ] Fetch active energy burned data
 - [x] Calculate net calories (consumed - burned) - _UI ready, needs data source_
 - [x] Display health data in UI - _UI implemented_
 - [ ] Handle permission states gracefully
+- [ ] Implement user profile data from health characteristics
 
-### Phase 5: History & Polish (Week 5) ⏳ PENDING
+### Phase 7: History & Polish (Week 6) ⏳ PENDING
 
 - [ ] Build history/trends screen - _Placeholder created_
 - [ ] Add edit/delete functionality
@@ -258,8 +285,17 @@ interface DayData {
 
 ### Required Permissions
 
+**Energy & Activity Data:**
+
 - `HKQuantityTypeIdentifierActiveEnergyBurned`
-- `HKQuantityTypeIdentifierBasalEnergyBurned` (optional)
+- `HKQuantityTypeIdentifierBasalEnergyBurned`
+
+**Physical Characteristics:**
+
+- `HKQuantityTypeIdentifierHeight`
+- `HKQuantityTypeIdentifierBodyMass`
+- `HKCharacteristicTypeIdentifierBiologicalSex`
+- `HKCharacteristicTypeIdentifierDateOfBirth`
 
 ### Data Synchronization
 
@@ -285,6 +321,7 @@ const STORAGE_KEYS = {
   FAVORITES: "@caloriepad/favorites",
   USER_SETTINGS: "@caloriepad/settings",
   HEALTH_CACHE: "@caloriepad/health_cache",
+  ONBOARDING_STATUS: "@caloriepad/onboarding_status",
 };
 ```
 

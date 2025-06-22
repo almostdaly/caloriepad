@@ -12,6 +12,7 @@ import {
   FoodEntry,
   FoodItem,
   HealthData,
+  UserOnboardingStatus,
   UserSettings,
 } from "../types";
 
@@ -27,6 +28,9 @@ interface AppState {
 
   // Settings
   settings: UserSettings;
+
+  // Onboarding status
+  onboardingStatus: UserOnboardingStatus;
 
   // Health data
   healthData: HealthData | null;
@@ -46,6 +50,7 @@ type AppAction =
   | { type: "ADD_FAVORITE"; payload: FoodItem }
   | { type: "REMOVE_FAVORITE"; payload: string }
   | { type: "SET_SETTINGS"; payload: UserSettings }
+  | { type: "SET_ONBOARDING_STATUS"; payload: UserOnboardingStatus }
   | { type: "SET_HEALTH_DATA"; payload: HealthData | null }
   | { type: "UPDATE_CALORIES_CONSUMED"; payload: number }
   | { type: "UPDATE_CALORIES_BURNED"; payload: number };
@@ -61,6 +66,11 @@ const initialState: AppState = {
     healthKitEnabled: false,
     notifications: true,
     theme: "system",
+  },
+  onboardingStatus: {
+    hasOnboarded: false,
+    healthPermissionsRequested: false,
+    healthPermissionsGranted: false,
   },
   healthData: null,
   loading: true,
@@ -114,6 +124,9 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
     case "SET_SETTINGS":
       return { ...state, settings: action.payload };
 
+    case "SET_ONBOARDING_STATUS":
+      return { ...state, onboardingStatus: action.payload };
+
     case "SET_HEALTH_DATA":
       return { ...state, healthData: action.payload };
 
@@ -137,8 +150,15 @@ const AppContext = createContext<{
   addToFavorites: (foodItem: FoodItem) => Promise<void>;
   removeFromFavorites: (foodItemId: string) => Promise<void>;
   updateSettings: (settings: UserSettings) => Promise<void>;
+  updateOnboardingStatus: (status: UserOnboardingStatus) => Promise<void>;
   getTodayData: () => DayData;
   refreshData: () => Promise<void>;
+  // Developer tools (only available in development)
+  developerTools: {
+    resetTodayLog: () => Promise<void>;
+    resetCustomFoodData: () => Promise<void>;
+    factoryReset: () => Promise<void>;
+  };
 } | null>(null);
 
 // Provider component
@@ -175,6 +195,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         const settings = await StorageService.getSettings();
         dispatch({ type: "SET_SETTINGS", payload: settings });
 
+        // Load onboarding status
+        const onboardingStatus = await StorageService.getOnboardingStatus();
+        dispatch({ type: "SET_ONBOARDING_STATUS", payload: onboardingStatus });
+
         // Load health data
         const healthData = await StorageService.getHealthData();
         dispatch({ type: "SET_HEALTH_DATA", payload: healthData });
@@ -203,10 +227,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const addToFavorites = async (foodItem: FoodItem): Promise<void> => {
     try {
       await StorageService.addToFavorites(foodItem);
-      dispatch({
-        type: "ADD_FAVORITE",
-        payload: { ...foodItem, isFavorite: true },
-      });
+      dispatch({ type: "ADD_FAVORITE", payload: foodItem });
     } catch (error) {
       console.error("Error adding to favorites:", error);
       dispatch({ type: "SET_ERROR", payload: "Failed to add to favorites" });
@@ -236,6 +257,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  const updateOnboardingStatus = async (
+    status: UserOnboardingStatus
+  ): Promise<void> => {
+    try {
+      await StorageService.saveOnboardingStatus(status);
+      dispatch({ type: "SET_ONBOARDING_STATUS", payload: status });
+    } catch (error) {
+      console.error("Error updating onboarding status:", error);
+      dispatch({
+        type: "SET_ERROR",
+        payload: "Failed to update onboarding status",
+      });
+    }
+  };
+
   const getTodayData = (): DayData => {
     return {
       date: getTodayDateString(),
@@ -247,15 +283,54 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const refreshData = async (): Promise<void> => {
-    // Refresh today's entries
-    const todayEntries = await StorageService.getDayEntries(
-      getTodayDateString()
-    );
-    dispatch({ type: "SET_TODAY_ENTRIES", payload: todayEntries });
+    try {
+      dispatch({ type: "SET_LOADING", payload: true });
 
-    // Refresh favorites
-    const favorites = await StorageService.getFavorites();
-    dispatch({ type: "SET_FAVORITES", payload: favorites });
+      // Reload today's entries
+      const todayEntries = await StorageService.getDayEntries(
+        getTodayDateString()
+      );
+      dispatch({ type: "SET_TODAY_ENTRIES", payload: todayEntries });
+
+      // Reload favorites
+      const favorites = await StorageService.getFavorites();
+      dispatch({ type: "SET_FAVORITES", payload: favorites });
+
+      // Reload settings
+      const settings = await StorageService.getSettings();
+      dispatch({ type: "SET_SETTINGS", payload: settings });
+
+      // Reload onboarding status
+      const onboardingStatus = await StorageService.getOnboardingStatus();
+      dispatch({ type: "SET_ONBOARDING_STATUS", payload: onboardingStatus });
+
+      // Reinitialize food database
+      await FoodService.initializeFoodDatabase();
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      dispatch({ type: "SET_ERROR", payload: "Failed to refresh data" });
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  };
+
+  // Developer tools - only available in development mode
+  const developerTools = {
+    resetTodayLog: async (): Promise<void> => {
+      await StorageService.resetTodayLog();
+      await refreshData();
+    },
+
+    resetCustomFoodData: async (): Promise<void> => {
+      await StorageService.resetCustomFoodData();
+      await refreshData();
+    },
+
+    factoryReset: async (): Promise<void> => {
+      await StorageService.factoryReset();
+      // Note: After factory reset, the app should navigate back to onboarding
+      // This will be handled by the component calling this function
+    },
   };
 
   const contextValue = {
@@ -265,8 +340,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     addToFavorites,
     removeFromFavorites,
     updateSettings,
+    updateOnboardingStatus,
     getTodayData,
     refreshData,
+    developerTools,
   };
 
   return (
